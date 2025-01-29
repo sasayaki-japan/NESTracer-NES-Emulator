@@ -23,7 +23,7 @@ Note: This program is not intended for playing games illegally. Its purpose is t
 
 * This program is entirely written in C# and .NET.
 * It can be compiled using Visual Studio 2022.
-![demo2](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu2.png)
+![demo2](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu7.png)
 ![demo3](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu3.png)
 ![demo4](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu4.png)
 ![demo5](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu5.png)
