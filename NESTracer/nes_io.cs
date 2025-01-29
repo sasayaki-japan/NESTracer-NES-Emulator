@@ -42,8 +42,7 @@ namespace NESTracer
                 case 0x4016:
                     if (g_key_cur < 8)
                     {
-                        w_out = (byte)(g_key_status[g_key_allocation[g_key_cur]]);
-                        //w_out = (byte)(g_key_status[g_key_allocation[g_key_cur]] | g_joy_status[g_joy_allocation[g_key_cur]]);
+                        w_out = (byte)(g_key_status[g_key_allocation[g_key_cur]] | g_joy_status[g_joy_allocation[g_key_cur]]);
                         g_key_cur += 1;
                     }
                     break;
