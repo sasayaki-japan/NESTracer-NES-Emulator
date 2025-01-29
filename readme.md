@@ -1,7 +1,7 @@
 # Summary
  
 NESTracer allows you to enjoy Nintendo Family Computer (NES) games just like a typical emulator, but its main purpose is as a tracer that tracks the internal processing of the Family Computer hardware and software.
- 
+
 All processing (MOS6502, PPU, APU) is coded in VisualStadio's c# language and .net, making it easy to understand the internal processing of the hardware.
  
 The software also displays MOS6502 programs in disassembled form, allowing you to stop them at any point and check the values ​​of memory, registers, etc. while stepping through the program.
