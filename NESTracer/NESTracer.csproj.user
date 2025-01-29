@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="Form_About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_MUSIC.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Code_Bank.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_IO.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_IO_Setting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Code.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_PPU_Screen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Pattern.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Registry.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Form_Setting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Form_Code_Bank.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Form_Code.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
