@@ -297,8 +297,8 @@ namespace NESTracer
                 g_renderer_action = false;
                 g_waitHandle.WaitOne(Timeout.Infinite);
                 g_waitHandle.Reset();
-                g_renderer_action = true;
                 nes_main.Nes_Screen_Update();
+                g_renderer_action = true;
             }
         }
     }

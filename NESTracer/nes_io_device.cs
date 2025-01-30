@@ -48,9 +48,6 @@ namespace NESTracer
                 var state = g_joy_device[g_joy_device_cur].GetCurrentState();
                 if (state == null) { return -1; }
 
-
-                Debug.WriteLine(state.Z);
-
                 for (int i = 0; i < JOY_STATUS_NUM; i++)
                 {
                     g_joy_status[i] = 0;

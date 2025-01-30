@@ -53,22 +53,20 @@ namespace NESTracer
         }
         public void run2()
         {
-            if (g_scanline <= 239)
+        	            if (g_scanline <= 239)
             {
-                if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
-                {
-                    wrapping_around_y();
-                    g_ppu_reg_v = (g_ppu_reg_v & 0xfbe0)
-                                | (g_ppu_reg_t & 0x041f);
-
-                }
+            if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
+            {
+                wrapping_around_y();
+                g_ppu_reg_v = (g_ppu_reg_v & 0xfbe0)
+                            | (g_ppu_reg_t & 0x041f);
             }
+        }
             if (g_scanline == 261)
             {
                 if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
                 {
-                    g_ppu_reg_v = (g_ppu_reg_v & 0x041f)
-                                | (g_ppu_reg_t & 0xfbe0);
+                    g_ppu_reg_v = g_ppu_reg_t;
                 }
             }
         }
@@ -95,13 +93,13 @@ namespace NESTracer
                 int w_y = g_ppu_reg_v & 0x03e0;
                 if (w_y == 0x03a0)
                 {
-                    g_ppu_reg_v &= 0xfc1f;
+                    g_ppu_reg_v &= 0x0c1f;
                     g_ppu_reg_v ^= 0x0800;
                 }
                 else
                 if (w_y == 0x03e0)
                 {
-                    g_ppu_reg_v &= 0xfc1f;
+                    g_ppu_reg_v &= 0x0c1f;
                 }
                 else
                 {
