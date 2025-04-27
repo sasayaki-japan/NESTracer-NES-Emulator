@@ -10,7 +10,7 @@ Enjoy the amazing technology and wisdom of the engineers of the time from both t
  
 Note: This program is not intended for playing games illegally. Its purpose is to help users understand and appreciate the ingenuity of the engineers who created this remarkable technology.
  
-![demo1](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu1.png)
+![demo1](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu1.png)
 
  
 * This program provides the following features
@@ -23,17 +23,17 @@ Note: This program is not intended for playing games illegally. Its purpose is t
 
 * This program is entirely written in C# and .NET.
 * It can be compiled using Visual Studio 2022.
-![demo2](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu7.png)
-![demo3](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu3.png)
-![demo4](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu4.png)
-![demo5](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu5.png)
-![demo6](https://www.jppass.com/nestracer/wp-content/uploads/2025/01/menu6.png)
+![demo2](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu7.png)
+![demo3](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu3.png)
+![demo4](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu4.png)
+![demo5](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu5.png)
+![demo6](https://www.jppass.jp/nestracer/wp-content/uploads/2025/01/menu6.png)
 
 ## page
-  https://www.jppass.com/nestracer
+  https://www.jppass.jp/nestracer
   
 ## binary
-  https://www.jppass.com/nestracer/download/
+  https://www.jppass.jp/nestracer/download/
   
 ## source
   GitHub: https://github.com/sasayaki-japan/NESTracer/tree/main
