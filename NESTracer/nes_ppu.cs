@@ -12,10 +12,6 @@ namespace NESTracer
         public int g_reg_reg_w;
         public bool g_sprite_zero_hit;
         //----------------------------------------------------------------
-        public nes_ppu()
-        {
-            initialize();
-        }
         public void run(int in_vline)
         {
             g_scanline = in_vline;

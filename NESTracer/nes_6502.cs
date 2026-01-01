@@ -11,14 +11,14 @@ namespace NESTracer
         public byte g_reg_X;
         public byte g_reg_Y;
         public byte g_reg_S;
-        public bool g_reg_N;
-        public bool g_reg_V;
-        public bool g_reg_R;
-        public bool g_reg_B;
-        public bool g_reg_D;
-        public bool g_reg_I;
-        public bool g_reg_Z;
-        public bool g_reg_C;
+
+        public bool g_flag_N;
+        public bool g_flag_V;
+        public bool g_flag_B;
+        public bool g_flag_D;
+        public bool g_flag_I;
+        public bool g_flag_Z;
+        public bool g_flag_C;
         public ushort g_initial_PC;
 
         public struct STACKLIST                 
@@ -65,27 +65,22 @@ namespace NESTracer
         }
         private void interrupt_chk()
         {
-            if (((nes_main.g_nes_apu.g_apu_reg[0x15] & 0x40) == 0x40) && (g_reg_I == false))
-            {
-                interrupt_IRQ = true;
-            }
             if (interrupt_RESET == true)
             {
                 interrupt_RESET = false;
-                g_reg_I = true;
-                g_reg_PC = nes_main.g_nes_bus.read2(0xFFFC);
+                g_flag_I = true;
+                g_reg_PC = nes_main.g_nes_bus.read2(0xfffc);
             }
             else
-            if ((interrupt_IRQ == true) && (g_reg_I == false))
+            if ((interrupt_IRQ == true) && (g_flag_I == false))
             {
                 interrupt_IRQ = false;
                 interrupt_IRQ_act = true;
                 push2(g_reg_PC, "IRQ");
-                g_reg_B = false;
+                g_flag_B = false;
                 push_P();
-                g_reg_I = true;
-                g_reg_PC = nes_main.g_nes_bus.read2(0xFFFE);
-                //nes_main.g_form_code_trace.CPU_Trace_push(Form_Code_Trace.STACK_LIST_TYPE.IRQ, 0xfffe, g_reg_PC, g_reg_PC, g_reg_S);
+                g_flag_I = true;
+                g_reg_PC = nes_main.g_nes_bus.read2(0xfffe);
                 g_clock_opt += 7;
             }
             else
@@ -94,11 +89,10 @@ namespace NESTracer
                 interrupt_NMI = false;
                 interrupt_NMI_act = true;
                 push2(g_reg_PC, "NMI");
-                g_reg_B = false;
+                g_flag_B = false;
                 push_P();
-                g_reg_I = true;
-                g_reg_PC = nes_main.g_nes_bus.read2(0xFFFA);
-                //nes_main.g_form_code_trace.CPU_Trace_push(Form_Code_Trace.STACK_LIST_TYPE.NMI, 0xfffa, g_reg_PC, g_reg_PC, g_reg_S);
+                g_flag_I = true;
+                g_reg_PC = nes_main.g_nes_bus.read2(0xfffa);
                 g_clock_opt += 7;
             }
         }

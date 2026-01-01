@@ -6,20 +6,20 @@ namespace NESTracer
     {
         private void NZ_check(byte in_val)
         {
-            if ((in_val & 0x80) == 0x80) g_reg_N = true; else g_reg_N = false;
-            if (in_val == 0) g_reg_Z = true; else g_reg_Z = false;
+            if ((in_val & 0x80) == 0x80) g_flag_N = true; else g_flag_N = false;
+            if (in_val == 0) g_flag_Z = true; else g_flag_Z = false;
         }
         private void C_check_add(uint in_val1)
         {
-            if ((in_val1 & 0x100) == 0x100) g_reg_C = true; else g_reg_C = false;
+            if ((in_val1 & 0x100) == 0x100) g_flag_C = true; else g_flag_C = false;
         }
         private void C_check_sub(int in_val)
         {
-            if ((~in_val & 0x0100) == 0x0100) g_reg_C = true; else g_reg_C = false;
+            if ((~in_val & 0x0100) == 0x0100) g_flag_C = true; else g_flag_C = false;
         }
         private void V_check(byte in_val1, byte in_val2, byte in_val3)
         {
-            if ((~(in_val1 ^ in_val2) & (in_val1 ^ in_val3) & 0x80) == 0x80) g_reg_V = true; else g_reg_V = false;
+            if ((~(in_val1 ^ in_val2) & (in_val1 ^ in_val3) & 0x80) == 0x80) g_flag_V = true; else g_flag_V = false;
         }
         private void push1(byte in_val, string in_name)
         {
@@ -64,27 +64,26 @@ namespace NESTracer
         private void push_P()
         {
             byte w_val = 0;
-            if (g_reg_N == true) w_val = 0x80;
-            if (g_reg_V == true) w_val |= 0x40;
+            if (g_flag_N == true) w_val = 0x80;
+            if (g_flag_V == true) w_val |= 0x40;
             w_val |= 0x20;
-            if (g_reg_B == true) w_val |= 0x10;
-            if (g_reg_D == true) w_val |= 0x08;
-            if (g_reg_I == true) w_val |= 0x04;
-            if (g_reg_Z == true) w_val |= 0x02;
-            if (g_reg_C == true) w_val |= 0x01;
+            if (g_flag_B == true) w_val |= 0x10;
+            if (g_flag_D == true) w_val |= 0x08;
+            if (g_flag_I == true) w_val |= 0x04;
+            if (g_flag_Z == true) w_val |= 0x02;
+            if (g_flag_C == true) w_val |= 0x01;
             push1(w_val, "g_reg_P");
         }
         private void pop_P()
         {
             byte w_val = pop1();
-            if ((w_val & 0x80) == 0x80) g_reg_N = true; else g_reg_N = false;
-            if ((w_val & 0x40) == 0x40) g_reg_V = true; else g_reg_V = false;
-            g_reg_R = true;
-            if ((w_val & 0x10) == 0x10) g_reg_B = true; else g_reg_B = false;
-            if ((w_val & 0x08) == 0x08) g_reg_D = true; else g_reg_D = false;
-            if ((w_val & 0x04) == 0x04) g_reg_I = true; else g_reg_I = false;
-            if ((w_val & 0x02) == 0x02) g_reg_Z = true; else g_reg_Z = false;
-            if ((w_val & 0x01) == 0x01) g_reg_C = true; else g_reg_C = false;
+            if ((w_val & 0x80) == 0x80) g_flag_N = true; else g_flag_N = false;
+            if ((w_val & 0x40) == 0x40) g_flag_V = true; else g_flag_V = false;
+            if ((w_val & 0x10) == 0x10) g_flag_B = true; else g_flag_B = false;
+            if ((w_val & 0x08) == 0x08) g_flag_D = true; else g_flag_D = false;
+            if ((w_val & 0x04) == 0x04) g_flag_I = true; else g_flag_I = false;
+            if ((w_val & 0x02) == 0x02) g_flag_Z = true; else g_flag_Z = false;
+            if ((w_val & 0x01) == 0x01) g_flag_C = true; else g_flag_C = false;
         }
     }
 }

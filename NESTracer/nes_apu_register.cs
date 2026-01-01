@@ -16,7 +16,7 @@ namespace NESTracer
                     if (g_wave_square2.c_len_count > 0) w_out |= 0x02;
                     if (g_wave_triangle.c_len_count > 0) w_out |= 0x04;
                     if (g_wave_noise.c_len_count > 0) w_out |= 0x08;
-                    if (g_wave_dmc.c_enable == true) w_out |= 0x10;
+                    if (g_wave_dpcm.c_enable == true) w_out |= 0x10;
                     w_out = g_apu_reg[0x15];
                     g_apu_reg[0x15] &= 0xbf;
                     break;
@@ -132,22 +132,22 @@ namespace NESTracer
                     //g_wave_noise.c_shift_reg = 1;
                     break;
                 case 0x4010:
-                    g_wave_dmc.c_freq = DMC_CYCLES[in_val & 0x0f];
-                    g_wave_dmc.c_loop = (in_val & 0x40) >> 6;
-                    g_wave_dmc.c_irq = in_val >> 7;
-                    if (g_wave_dmc.c_irq == 0)
+                    g_wave_dpcm.c_freq = DMC_CYCLES[in_val & 0x0f];
+                    g_wave_dpcm.c_loop = (in_val & 0x40) >> 6;
+                    g_wave_dpcm.c_irq = in_val >> 7;
+                    if (g_wave_dpcm.c_irq == 0)
                     {
                         g_apu_reg[0x15] &= 0x7f;     
                     }
                     break;
                 case 0x4011:
-                    g_wave_dmc.c_value = in_val & 0x7f;
+                    g_wave_dpcm.c_value = in_val & 0x7f;
                     break;
                 case 0x4012:
-                    g_wave_dmc.c_address = (ushort)(0xc000 + (ushort)(in_val << 6));
+                    g_wave_dpcm.c_address = (ushort)(0xc000 + (ushort)(in_val << 6));
                     break;
                 case 0x4013:
-                    g_wave_dmc.c_length = in_val << 7;
+                    g_wave_dpcm.c_length = in_val << 7;
                     break;
                 case 0x4015:
                     if ((in_val & 0x01) == 0)
@@ -187,17 +187,17 @@ namespace NESTracer
                     }
                     if ((in_val & 0x10) == 0)
                     {
-                        g_wave_dmc.c_enable = false;
+                        g_wave_dpcm.c_enable = false;
                     }
                     else
                     {
-                        g_wave_dmc.c_enable = true;
-                        g_wave_dmc.c_freq_real = g_wave_dmc.c_freq;
-                        g_wave_dmc.c_cur_address = g_wave_dmc.c_address;
-                        g_wave_dmc.c_cur_count = g_wave_dmc.c_length;
+                        g_wave_dpcm.c_enable = true;
+                        g_wave_dpcm.c_freq_real = g_wave_dpcm.c_freq;
+                        g_wave_dpcm.c_cur_address = g_wave_dpcm.c_address;
+                        g_wave_dpcm.c_cur_count = g_wave_dpcm.c_length;
 
                     }
-                    g_wave_dmc.c_irq = 0;
+                    g_wave_dpcm.c_irq = 0;
                     g_apu_reg[0x15] &= 0x7f;     
                     break;
                 case 0x4017:

@@ -65,7 +65,7 @@ namespace NESTracer
 
             Task<int> task_cpu = Task.Run<int>(() =>
             {
-                md_run();
+                run();
                 return 0;
             });
             g_nes_ppu.g_waitHandle = new ManualResetEvent(false);
@@ -100,7 +100,7 @@ namespace NESTracer
             g_form_code_bank.Invalidate();
         }
 
-        private static void md_run()
+        private static void run()
         {
             int w_log_pef_sum = 0;
             int w_log_pef_cnt = 0;
@@ -138,11 +138,10 @@ namespace NESTracer
                 TimeSpan timeSpan2 = w_stopwatch.Elapsed;
                 int wtime = 0;
                 TimeSpan timeSpan;
-                float w_wait = 16666.666f;
 
                 timeSpan = w_stopwatch.Elapsed;
                 wtime = (int)(timeSpan.TotalMilliseconds * 1000);
-                int w_log_pef = (int)((wtime / w_wait) * 100);
+                int w_log_pef = (int)((wtime / 16666.666f) * 100);
                 w_log_pef_sum += w_log_pef;
                 w_log_pef_cnt += 1;
                 if (w_log_pef_cnt % 60 == 0)
@@ -155,7 +154,7 @@ namespace NESTracer
                 {
                     timeSpan = w_stopwatch.Elapsed;
                     wtime = (int)(timeSpan.TotalMilliseconds * 1000);
-                } while ((w_wait > wtime) && (timeSpan.Seconds < 1));    //1,000,000 / 60
+                } while ((16666.666f > wtime) && (timeSpan.Seconds < 1));    //1,000,000 / 60
                 w_stopwatch.Restart();
             }
         }

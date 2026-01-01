@@ -27,7 +27,7 @@ namespace NESTracer
         public Wave_Square g_wave_square2;
         public Wave_Triangle g_wave_triangle;
         public Wave_Noise g_wave_noise;
-        public Wave_Dmc g_wave_dmc;
+        public Wave_Dpcm g_wave_dpcm;
 
         //----------------------------------------------------------------
         public nes_apu()
@@ -49,7 +49,7 @@ namespace NESTracer
             g_wave_square2.c_mode = 1;
             g_wave_triangle = new Wave_Triangle();
             g_wave_noise = new Wave_Noise();
-            g_wave_dmc = new Wave_Dmc();
+            g_wave_dpcm = new Wave_Dpcm();
 
             g_buffer = new byte[BUFSIZE];
         }

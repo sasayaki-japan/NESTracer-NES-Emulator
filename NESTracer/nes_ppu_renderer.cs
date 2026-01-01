@@ -22,8 +22,6 @@ namespace NESTracer
         public void rendering_line(int in_line)
         {
             int w_bgmem = g_io_2000_4_BGMEM == false ? 0 : 1;
-            int w_spmem = g_io_2000_3_SPMEM == false ? 0 : 1;
-
             //BG
             if (g_io_2001_3_BGSHOW == true)
             {
@@ -75,140 +73,93 @@ namespace NESTracer
             //SP
             if (g_io_2001_4_SPSHOW == true)
             {
-                if (g_io_2000_5_SPSIZE == false)
+                int w_spmem = w_spmem = (g_io_2000_3_SPMEM == false) ? 0 : 1;
+                for (int w_spnum = 63; w_spnum >= 0; w_spnum--)
                 {
-                    //sprite size 8 * 8
-                    for (int w_spnum = 63; w_spnum >= 0; w_spnum--)
+                    int w_y = g_memory_oam[w_spnum * 4] + 1;
+                    int w_chr = g_memory_oam[w_spnum * 4 + 1];
+                    int w_attr = g_memory_oam[w_spnum * 4 + 2];
+                    int w_x = g_memory_oam[w_spnum * 4 + 3];
+                    int w_attr_vertical = (w_attr & 0x80) != 0 ? 1 : 0;
+                    int w_attr_horizon = (w_attr & 0x40) != 0 ? 1 : 0;
+                    int w_attr_depth = (w_attr & 0x20) >> 5;
+                    int w_attr_pallet = (w_attr & 0x03) << 2;
+                    int cy = in_line - w_y;
+                    if (g_io_2000_5_SPSIZE == false)
                     {
-                        int wy = g_memory_oam[w_spnum * 4] + 1;
-                        if ((wy <= in_line) && (in_line <= wy + 7))
+                        if ((cy < 0) || (7 < cy))
                         {
-                            int wchr = g_memory_oam[w_spnum * 4 + 1];
-                            int wattr = g_memory_oam[w_spnum * 4 + 2];
-                            int wx = g_memory_oam[w_spnum * 4 + 3];
-                            int wattr_vertical = (wattr & 0x80) != 0 ? 1 : 0;
-                            int wattr_horizon = (wattr & 0x40) != 0 ? 1 : 0;
-                            int wattr_depth = (wattr & 0x20) >> 5;
-                            int wattr_pallet = wattr & 0x03;
-                            int w_bank = get_bank(w_spmem, wchr);
-                            int w_bank_chr = get_bank_chr(w_spmem, wchr);
-                            int wpallete_base = wattr_pallet * 4;
-                            int cy = in_line - wy;
-                            if (wattr_vertical == 1) cy = 7 - cy;
-                            int w_offset = cy << 3;
-                            for (int j = 0; j <= 7; j++)
+                            continue;
+                        }
+                        if (w_attr_vertical == 1) cy = 7 - cy;
+                    }
+                    else
+                    {
+                        if ((cy < 0) || (15 < cy))
+                        {
+                            continue;
+                        }
+                        w_spmem = (w_chr & 1);
+                        w_chr &= 0xfe;
+                        if (cy <= 7)
+                        {
+                            if (w_attr_vertical == 1)
                             {
-                                int cx = j;
-                                if (wattr_horizon == 1) cx = 7 - j;
-                                int kx = wx + j;
-                                if (255 < kx) break;
-                                if((g_io_2001_2_SPleftmost == true)&& (kx < 8)) continue;
-                                byte w_cor = g_chr_data[w_bank, w_bank_chr, w_offset + cx];
-                                sp_sub(w_spnum, w_cor, kx, wattr_depth, wpallete_base);
+                                w_chr += 1;
+                                cy = 7 - cy;
+                            }
+                        }
+                        else
+                        {
+                            cy -= 8;
+                            if (w_attr_vertical == 0)
+                            {
+                                w_chr += 1;
+                            }else
+                            {
+                                cy = 7 - cy;
                             }
                         }
                     }
-                }
-                else
-                {
-                    //sprite size 8 * 16
-                    for (int w_depth = 1; w_depth >=0; w_depth--)
+                    int w_offset = cy << 3;
+                    int w_bank = get_bank(w_spmem, w_chr);
+                    int w_bank_chr = get_bank_chr(w_spmem, w_chr);
+                    for (int j = 0; j <= 7; j++)
                     {
-                        for (int w_spnum = 63; w_spnum >= 0; w_spnum--)
+                        int cx = j;
+                        if (w_attr_horizon == 1) cx = 7 - j;
+                        int kx = w_x + j;
+                        if (255 < kx) break;
+                        if ((g_io_2001_2_SPleftmost == true) && (kx < 8)) continue;
+                        byte w_cor = g_chr_data[w_bank, w_bank_chr, w_offset + cx];
+                        if (w_cor != 0)
                         {
-                            int wy = g_memory_oam[w_spnum * 4];
-                            if ((wy <= in_line) && (in_line <= wy + 15))
+                            if (w_attr_depth == 1)
                             {
-                                int wchr = g_memory_oam[w_spnum * 4 + 1];
-                                int wattr = g_memory_oam[w_spnum * 4 + 2];
-                                int wx = g_memory_oam[w_spnum * 4 + 3];
-                                int wattr_vertical = (wattr & 0x80) != 0 ? 1 : 0;
-                                int wattr_horizon = (wattr & 0x40) != 0 ? 1 : 0;
-                                int wattr_depth = (wattr & 0x20) >> 5;
-                                int wattr_pallet = wattr & 0x03;
-                                int w_spmem2 = wchr & 1;
-                                wchr &= 0xfe;
-                                int w_bank = get_bank(w_spmem2, wchr);
-                                int w_bank_chr = get_bank_chr(w_spmem2, wchr);
-                                int w_bank2 = get_bank(w_spmem2, wchr + 1);
-                                int w_bank_chr2 = get_bank_chr(w_spmem2, wchr + 1);
-                                int wpallete_base = wattr_pallet * 4;
-                                if (wattr_depth != w_depth) continue;
-                                for (int cy = 0; cy < 8; cy++)
+                                if ((g_game_cmap[kx] & 3) == 0)
                                 {
-                                    int ky = 0;
-                                    if (wattr_vertical == 0)
-                                    {
-                                        ky = wy + cy;
-                                    }
-                                    else
-                                    {
-                                        ky = wy + (15 - cy);
-                                    }
-                                    if (in_line == ky)
-                                    {
-                                        int w_offset = cy << 3;
-                                        for (int cx = 0; cx < 8; cx++)
-                                        {
-                                            int kx = 0;
-                                            if (wattr_horizon == 0)
-                                            {
-                                                kx = wx + cx;
-                                            }
-                                            else
-                                            {
-                                                kx = wx + (7 - cx);
-                                            }
-                                            if (255 < kx) break;
-                                            if ((g_io_2001_2_SPleftmost == true) && (kx < 8)) continue;
-                                            byte w_cor = g_chr_data[w_bank, w_bank_chr, w_offset];
-                                            sp_sub(w_spnum, w_cor, kx, wattr_depth, wpallete_base);
-                                            w_offset += 1;
-                                        }
-                                    }
+                                    g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
                                 }
-                                for (int cy = 0; cy < 8; cy++)
+                                if (w_spnum == 0)
                                 {
-                                    int ky = 0;
-                                    if (wattr_vertical == 0)
-                                    {
-                                        ky = wy + cy + 8;
-                                    }
-                                    else
-                                    {
-                                        ky = wy + (7 - cy);
-                                    }
-                                    if (in_line == ky)
-                                    {
-                                        int w_offset = cy << 3;
-                                        for (int cx = 0; cx < 8; cx++)
-                                        {
-                                            int kx = 0;
-                                            if (wattr_horizon == 0)
-                                            {
-                                                kx = wx + cx;
-                                            }
-                                            else
-                                            {
-                                                kx = wx + (7 - cx);
-                                            }
-                                            if (255 < kx) break;
-                                            if ((g_io_2001_2_SPleftmost == true) && (kx < 8)) continue;
-                                            byte w_cor = g_chr_data[w_bank2, w_bank_chr2, w_offset];
-                                            sp_sub(w_spnum, w_cor, kx, wattr_depth, wpallete_base);
-                                            w_offset += 1;
-                                        }
-                                    }
+                                    g_sprite_zero_hit = true;
+                                }
+                            }
+                            else
+                            {
+                                g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
+                                if (w_spnum == 0)
+                                {
+                                    g_sprite_zero_hit = true;
                                 }
                             }
                         }
                     }
                 }
             }
-
             //name table
             {
-                for(int i = 0; i < 2; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     int w_name = i;
                     int w_view_dx = 8;
@@ -254,31 +205,6 @@ namespace NESTracer
                     }
                     g_game_cmap[wx] = 0;
                     w_addr += 1;
-                }
-            }
-        }
-        public void sp_sub(int in_spnum, uint in_cor, int in_kx, int in_wattr_depth, int in_wpallete_base)
-        {
-            if (in_cor != 0)
-            {
-                if (in_wattr_depth == 1)
-                {
-                    if ((g_game_cmap[in_kx] & 3) == 0)
-                    {
-                        g_game_cmap[in_kx] = (uint)(in_cor + in_wpallete_base + 0x10);
-                    }
-                    if (in_spnum == 0)
-                    {
-                        g_sprite_zero_hit = true;
-                    }
-                }
-                else
-                {
-                    g_game_cmap[in_kx] = (uint)(in_cor + in_wpallete_base + 0x10);
-                    if (in_spnum == 0)
-                    {
-                        g_sprite_zero_hit = true;
-                    }
                 }
             }
         }

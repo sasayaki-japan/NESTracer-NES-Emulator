@@ -19,7 +19,7 @@ namespace NESTracer
         private void op_TYA() => NZ_check(g_reg_A = g_reg_Y);
         private void op_ADC_SUB(byte w_val1)
         {
-            uint w_val = (uint)g_reg_A + (uint)w_val1 + (uint)((g_reg_C == true) ? 1 : 0);
+            uint w_val = (uint)g_reg_A + (uint)w_val1 + (uint)((g_flag_C == true) ? 1 : 0);
             C_check_add(w_val);
             V_check(g_reg_A, w_val1, (byte)w_val);
             g_reg_A = (byte)w_val;
@@ -30,7 +30,7 @@ namespace NESTracer
         private void op_ASL()
         {
             byte w_val = addressing_read();
-            if ((w_val & 0x80) == 0x80) g_reg_C = true; else g_reg_C = false;
+            if ((w_val & 0x80) == 0x80) g_flag_C = true; else g_flag_C = false;
             w_val <<= 1;
             addressing_write(w_val);
             NZ_check(w_val);
@@ -38,9 +38,9 @@ namespace NESTracer
         private void op_BIT()
         {
             byte w_val = addressing_read();
-            if ((w_val & 0x80) == 0x80) g_reg_N = true; else g_reg_N = false;
-            if ((w_val & 0x40) == 0x40) g_reg_V = true; else g_reg_V = false;
-            if ((w_val & g_reg_A) == 0) g_reg_Z = true; else g_reg_Z = false;
+            if ((w_val & 0x80) == 0x80) g_flag_N = true; else g_flag_N = false;
+            if ((w_val & 0x40) == 0x40) g_flag_V = true; else g_flag_V = false;
+            if ((w_val & g_reg_A) == 0) g_flag_Z = true; else g_flag_Z = false;
         }
         private void op_CMP()
         {
@@ -89,7 +89,7 @@ namespace NESTracer
         private void op_LSR()
         {
             byte w_val = addressing_read();
-            if ((w_val & 0x01) == 0x01) g_reg_C = true; else g_reg_C = false;
+            if ((w_val & 0x01) == 0x01) g_flag_C = true; else g_flag_C = false;
             w_val >>= 1;
             addressing_write(w_val);
             NZ_check(w_val);
@@ -103,8 +103,8 @@ namespace NESTracer
         private void op_ROL()
         {
             byte w_val = addressing_read();
-            bool old_c = g_reg_C;
-            if ((w_val & 0x80) == 0x80) g_reg_C = true; else g_reg_C = false;
+            bool old_c = g_flag_C;
+            if ((w_val & 0x80) == 0x80) g_flag_C = true; else g_flag_C = false;
             w_val = (byte)(w_val << 1);
             if (old_c == true) w_val |= 0x01;
             addressing_write(w_val);
@@ -113,8 +113,8 @@ namespace NESTracer
         private void op_ROR()
         {
             byte w_val = addressing_read();
-            bool old_c = g_reg_C;
-            if ((w_val & 0x01) == 0x01) g_reg_C = true; else g_reg_C = false;
+            bool old_c = g_flag_C;
+            if ((w_val & 0x01) == 0x01) g_flag_C = true; else g_flag_C = false;
             w_val = (byte)(w_val >> 1);
             if (old_c == true) w_val |= 0x80;
             addressing_write(w_val);
@@ -129,28 +129,27 @@ namespace NESTracer
         private void op_PHP()
         {
             byte w_val = 0;
-            if (g_reg_N == true) w_val = 0x80;
-            if (g_reg_V == true) w_val |= 0x40;
+            if (g_flag_N == true) w_val = 0x80;
+            if (g_flag_V == true) w_val |= 0x40;
             w_val |= 0x20;
             w_val |= 0x10;
-            if (g_reg_D == true) w_val |= 0x08;
-            if (g_reg_I == true) w_val |= 0x04;
-            if (g_reg_Z == true) w_val |= 0x02;
-            if (g_reg_C == true) w_val |= 0x01;
+            if (g_flag_D == true) w_val |= 0x08;
+            if (g_flag_I == true) w_val |= 0x04;
+            if (g_flag_Z == true) w_val |= 0x02;
+            if (g_flag_C == true) w_val |= 0x01;
             push1(w_val, "PHP");
         }
         private void op_PLA() => NZ_check(g_reg_A = pop1());
         private void op_PLP()
         {
             byte w_val = pop1();
-            if ((w_val & 0x80) == 0x80) g_reg_N = true; else g_reg_N = false;
-            if ((w_val & 0x40) == 0x40) g_reg_V = true; else g_reg_V = false;
-            g_reg_R = true;
-            g_reg_B = false;
-            if ((w_val & 0x08) == 0x08) g_reg_D = true; else g_reg_D = false;
-            if ((w_val & 0x04) == 0x04) g_reg_I = true; else g_reg_I = false;
-            if ((w_val & 0x02) == 0x02) g_reg_Z = true; else g_reg_Z = false;
-            if ((w_val & 0x01) == 0x01) g_reg_C = true; else g_reg_C = false;
+            if ((w_val & 0x80) == 0x80) g_flag_N = true; else g_flag_N = false;
+            if ((w_val & 0x40) == 0x40) g_flag_V = true; else g_flag_V = false;
+            g_flag_B = false;
+            if ((w_val & 0x08) == 0x08) g_flag_D = true; else g_flag_D = false;
+            if ((w_val & 0x04) == 0x04) g_flag_I = true; else g_flag_I = false;
+            if ((w_val & 0x02) == 0x02) g_flag_Z = true; else g_flag_Z = false;
+            if ((w_val & 0x01) == 0x01) g_flag_C = true; else g_flag_C = false;
         }
         private void op_JMP()
         {
@@ -197,14 +196,14 @@ namespace NESTracer
 
             g_reg_PC = pop2();
         }
-        private void op_BCS() => Branch_SUB(g_reg_C == true);
-        private void op_BCC() => Branch_SUB(g_reg_C == false);
-        private void op_BEQ() => Branch_SUB(g_reg_Z == true);
-        private void op_BNE() => Branch_SUB(g_reg_Z == false);
-        private void op_BMI() => Branch_SUB(g_reg_N == true);
-        private void op_BPL() => Branch_SUB(g_reg_N == false);
-        private void op_BVS() => Branch_SUB(g_reg_V == true);
-        private void op_BVC() => Branch_SUB(g_reg_V == false);
+        private void op_BCS() => Branch_SUB(g_flag_C == true);
+        private void op_BCC() => Branch_SUB(g_flag_C == false);
+        private void op_BEQ() => Branch_SUB(g_flag_Z == true);
+        private void op_BNE() => Branch_SUB(g_flag_Z == false);
+        private void op_BMI() => Branch_SUB(g_flag_N == true);
+        private void op_BPL() => Branch_SUB(g_flag_N == false);
+        private void op_BVS() => Branch_SUB(g_flag_V == true);
+        private void op_BVC() => Branch_SUB(g_flag_V == false);
         private void Branch_SUB(bool evaluation)
         {
             if (evaluation == true)
@@ -222,18 +221,18 @@ namespace NESTracer
                 }
             }
         }
-        private void op_CLC() => g_reg_C = false;
-        private void op_CLD() => g_reg_D = false;
-        private void op_CLI() => g_reg_I = false;
-        private void op_CLV() => g_reg_V = false;
-        private void op_SEC() => g_reg_C = true;
-        private void op_SED() => g_reg_D = true;
-        private void op_SEI() => g_reg_I = true;
+        private void op_CLC() => g_flag_C = false;
+        private void op_CLD() => g_flag_D = false;
+        private void op_CLI() => g_flag_I = false;
+        private void op_CLV() => g_flag_V = false;
+        private void op_SEC() => g_flag_C = true;
+        private void op_SED() => g_flag_D = true;
+        private void op_SEI() => g_flag_I = true;
         private void op_BRK()
         {
             push_P();
             push2(g_reg_PC, "BRK");
-            g_reg_B = true;
+            g_flag_B = true;
             g_reg_PC = nes_main.g_nes_bus.read2(0xFFFE);
         }
         private void op_NOP()

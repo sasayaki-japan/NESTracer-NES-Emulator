@@ -214,14 +214,13 @@ namespace NESTracer
             g_reg_X = 0;
             g_reg_Y = 0;
             g_reg_S = 253;
-            g_reg_N = false;
-            g_reg_V = false;
-            g_reg_R = true;
-            g_reg_B = false;
-            g_reg_D = false;
-            g_reg_I = true;
-            g_reg_Z = false;
-            g_reg_C = false;
+            g_flag_N = false;
+            g_flag_V = false;
+            g_flag_B = false;
+            g_flag_D = false;
+            g_flag_I = true;
+            g_flag_Z = false;
+            g_flag_C = false;
 
             interrupt_NMI = false;
             interrupt_RESET = false;
