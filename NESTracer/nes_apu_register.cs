@@ -76,6 +76,8 @@ namespace NESTracer
                     g_wave_square2.c_len_count_enable = ((in_val & 0x20) == 0) ? false : true;
                     g_wave_square2.c_envelope_enable = ((in_val & 0x10) == 0) ? false : true;
                     g_wave_square2.c_volume = (short)(in_val & 0x0f);
+                    g_wave_square2.c_envelope_count_init = g_wave_square2.c_volume + 1;
+
                     break;
                 case 0x4005:
                     g_wave_square2.c_sweep_enable = ((in_val & 0x80) == 0) ? false : true;
@@ -95,9 +97,10 @@ namespace NESTracer
                     g_wave_square2.c_freq = g_apu_reg[6] | ((in_val & 0x07) << 8);
                     g_wave_square2.c_freq_real = (int)(CPU_CLOCK / ((g_wave_square2.c_freq + 1) << 4));
                     g_wave_square2.c_len_count = KEYOFF[in_val >> 3] * 2;
-                    g_wave_square2.c_counter = g_wave_square1.c_volume + 1;
+                    g_wave_square2.c_counter = g_wave_square2.c_volume + 1;
                     g_wave_square2.c_envelope_vol = 15;
-                    g_wave_square1.c_duty_cnt = 0;
+                    g_wave_square2.c_duty_cnt = 0;
+                    g_wave_square2.c_envelope_count = g_wave_square2.c_envelope_count_init + 1;
                     break;
                 case 0x4008:
                     g_wave_triangle.c_len_count_enable = in_val >> 7;
