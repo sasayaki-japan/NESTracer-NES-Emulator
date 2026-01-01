@@ -5,10 +5,6 @@ namespace NESTracer
     internal partial class nes_apu
     {
         private int[] LOOP_SYNC_LIST = { 183 * 2, 184 * 2, 184 * 2, 184 * 2 };
-        private int[,] DUTY_LIST = {{0, 1, 0, 0, 0, 0, 0, 0},
-                                    {0, 1, 1, 0, 0, 0, 0, 0},
-                                    {0, 1, 1, 1, 1, 0, 0, 0},
-                                    {1, 0, 0, 1, 1, 1, 1, 1}};
         private byte[] KEYOFF = {   0x05, 0x7f, 0x0a, 0x01
                                         , 0x14, 0x02, 0x28, 0x03
                                         , 0x50, 0x04, 0x1e, 0x05
@@ -18,16 +14,6 @@ namespace NESTracer
                                         , 0x60, 0x0c, 0x24, 0x0d
                                         , 0x08, 0x0e, 0x10, 0x0f };
         private short[] SWEEP_LIMIT = { 0x03ff, 0x0555, 0x0666, 0x071c, 0x0787, 0x07c1, 0x07e0, 0x07f0 };
-        private short[] TRAIANGLE_LOOKUP = { 0x7000,  0x6000,  0x5000,  0x4000
-                                                ,  0x3000,  0x2000,  0x1000,  0x0000
-                                                , -0x1000, -0x2000, -0x3000, -0x4000
-                                                , -0x5000, -0x6000, -0x7000, -0x8000
-                                                , -0x8000, -0x7000, -0x6000, -0x5000
-                                                , -0x4000, -0x3000, -0x2000, -0x1000
-                                                ,  0x0000,  0x1000,  0x2000,  0x3000
-                                                ,  0x4000,  0x5000,  0x6000,  0x7000 };
-        private short[] NOISE_CYCLES = { 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 };
-        private short[] DMC_CYCLES = { 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106,  85,  72,  54 };
 
         private int g_clock_cnt;
         private int g_cycle_bk = -1;
@@ -89,8 +75,14 @@ namespace NESTracer
 
                     if (g_master_stereo == false)
                     {
-                        float w_mix_total = w_mix1 + w_mix2 + w_mix3 + w_mix4 + w_mix5;
-                        w_mix_total = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_total));
+                        float w_mix_out1 = 95.88f / ((8128f / (w_mix1 + w_mix2)) + 100);
+                        float w_mix_out2 = 159.79f / ((1.0f / (w_mix3 / 8227f) + (w_mix4 / 12241f) + (w_mix5 / 22638f)) + 100);
+                        float w_mix_total = w_mix_out1 + w_mix_out2;
+                        w_mix_total *= 32768;
+                        if ((w_mix1 == 0) && (w_mix2 == 0) && (w_mix3 == 0) && (w_mix4 == 0) && (w_mix5 == 0))
+                        {
+                            w_mix_total = 0;
+                        }
                         g_buffer[g_buffer_cur + 1] = (byte)((short)w_mix_total >> 8);
                         g_buffer[g_buffer_cur + 0] = (byte)((short)w_mix_total & 0xff);
                         g_buffer[g_buffer_cur + 3] = (byte)((short)w_mix_total >> 8);
@@ -98,8 +90,20 @@ namespace NESTracer
                     }
                     else
                     {
-                        float w_mix_left = (float)(w_mix1 + w_mix2 * 0.5 + w_mix3 + w_mix4 * 0.8 + w_mix5);
-                        float w_mix_right = (float)(w_mix1 * 0.5 + w_mix2 + w_mix3 * 0.8 + w_mix4 + w_mix5);
+                        float w_mix_out1 = 95.88f / ((8128f / (w_mix1 + (w_mix2 * 0.5f))) + 100);
+                        float w_mix_out2 = 159.79f / ((1.0f / (w_mix3 / 8227f) + ((w_mix4 * 0.8f) / 12241f) + (w_mix5 / 22638f)) + 100);
+                        float w_mix_left = w_mix_out1 + w_mix_out2;
+                        w_mix_left *= 32768;
+
+                        w_mix_out1 = 95.88f / ((8128f / ((w_mix1 * 0.5f) + w_mix2)) + 100);
+                        w_mix_out2 = 159.79f / ((1.0f / ((w_mix3 * 0.8f) / 8227f) + (w_mix4 / 12241f) + (w_mix5 / 22638f)) + 100);
+                        float w_mix_right = w_mix_out1 + w_mix_out2;
+                        w_mix_right *= 32768;
+                        if ((w_mix1 == 0) && (w_mix2 == 0) && (w_mix3 == 0) && (w_mix4 == 0) && (w_mix5 == 0))
+                        {
+                            w_mix_left = 0;
+                            w_mix_left = 0;
+                        }
                         w_mix_left = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_left));
                         w_mix_right = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_right));
                         g_buffer[g_buffer_cur + 1] = (byte)((short)w_mix_right >> 8);

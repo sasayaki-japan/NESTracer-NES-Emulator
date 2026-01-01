@@ -4,6 +4,10 @@ namespace NESTracer
 {
     internal partial class nes_apu
     {
+        private int[,] DUTY_LIST = {{0, 1, 0, 0, 0, 0, 0, 0},
+                                    {0, 1, 1, 0, 0, 0, 0, 0},
+                                    {0, 1, 1, 1, 1, 0, 0, 0},
+                                    {1, 0, 0, 1, 1, 1, 1, 1}};
         public class Wave_Square
         {
             public bool c_enable = false;             
@@ -27,9 +31,6 @@ namespace NESTracer
             public int c_counter = 0;               
             public int c_vol = 0;                   
             public int c_duty_cnt = 0;              
-            public Wave_Square()
-            {
-            }
 
             public void clock_120()
             {
@@ -113,13 +114,12 @@ namespace NESTracer
                     c_counter -= 1;
                 }
             }
-            public short clock_44100()
+            public int clock_44100()
             {
-                short w_out = 0;
+                int w_out = 0;
                 if ((c_vol > 0) && (c_freq >= 8))
                 {
-                    int w_vol = (short)(c_vol << 11);
-                    w_out = (short)((nes_main.g_nes_apu.DUTY_LIST[c_duty, c_duty_cnt] == 1) ? w_vol : -w_vol);
+                    w_out = ((nes_main.g_nes_apu.DUTY_LIST[c_duty, c_duty_cnt] == 1) ? c_vol : 0);
                     nes_main.g_nes_apu.g_freq_out[c_mode] = c_freq_real;
                 }
                 else

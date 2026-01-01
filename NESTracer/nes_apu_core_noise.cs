@@ -4,6 +4,7 @@ namespace NESTracer
 {
     internal partial class nes_apu
     {
+        private short[] NOISE_CYCLES = { 4, 8, 16, 32, 64, 96, 128, 160, 202, 254, 380, 508, 762, 1016, 2034, 4068 };
         public class Wave_Noise
         {
             public bool c_enable = false;             
@@ -20,10 +21,6 @@ namespace NESTracer
             public int c_shift_bit0 = 1;            
             public int c_counter = 0;               
             public int c_vol = 0;                   
-
-            public Wave_Noise()
-            {
-            }
             public void clock_120()
             {
                 if ((c_enable == true) && (0 < c_len_count))
@@ -87,17 +84,12 @@ namespace NESTracer
                     c_counter -= 1;
                 }
             }
-            public short clock_44100()
+            public int clock_44100()
             {
-                short w_out = 0;
+                int w_out = 0;
                 if (c_vol > 0)
                 {
-                    int w_vol = c_vol;
-                    if ((c_shift_reg & 1) == 1)
-                    {
-                        w_vol = (short)-w_vol;
-                    }
-                    w_out = (short)(w_vol << 11);
+                    w_out = ((c_shift_reg & 1) == 0) ? c_vol: 0;
                     nes_main.g_nes_apu.g_freq_out[3] = c_freq_real;
                 }
                 else

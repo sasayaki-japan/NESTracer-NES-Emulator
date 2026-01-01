@@ -77,7 +77,6 @@ namespace NESTracer
                     g_wave_square2.c_envelope_enable = ((in_val & 0x10) == 0) ? false : true;
                     g_wave_square2.c_volume = (short)(in_val & 0x0f);
                     g_wave_square2.c_envelope_count_init = g_wave_square2.c_volume + 1;
-
                     break;
                 case 0x4005:
                     g_wave_square2.c_sweep_enable = ((in_val & 0x80) == 0) ? false : true;
@@ -109,7 +108,6 @@ namespace NESTracer
                 case 0x400a:
                     g_wave_triangle.c_freq = in_val | ((g_apu_reg[0x0b] & 0x07) << 8);
                     g_wave_triangle.c_freq_real = (int)(CPU_CLOCK / ((g_wave_triangle.c_freq + 1) << 5));
-                    g_wave_triangle.c_counter = 0;
                     break;
                 case 0x400b:
                     g_wave_triangle.c_freq = g_apu_reg[0x0a] | ((in_val & 0x07) << 8);
@@ -117,7 +115,6 @@ namespace NESTracer
                     g_wave_triangle.c_len_count = KEYOFF[in_val >> 3] * 2;
                     g_wave_triangle.c_linear_count_reset = true;
                     g_wave_triangle.c_linear_count = 0;
-                    g_wave_triangle.c_counter = 0;
                     break;
                 case 0x400c:
                     g_wave_noise.c_len_count_enable = ((in_val & 0x20) == 0) ? false : true;
@@ -135,7 +132,7 @@ namespace NESTracer
                     //g_wave_noise.c_shift_reg = 1;
                     break;
                 case 0x4010:
-                    g_wave_dpcm.c_freq = DMC_CYCLES[in_val & 0x0f];
+                    g_wave_dpcm.c_freq = DPCM_CYCLES[in_val & 0x0f];
                     g_wave_dpcm.c_loop = (in_val & 0x40) >> 6;
                     g_wave_dpcm.c_irq = in_val >> 7;
                     if (g_wave_dpcm.c_irq == 0)

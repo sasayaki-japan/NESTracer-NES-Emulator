@@ -4,6 +4,7 @@ namespace NESTracer
 {
     internal partial class nes_apu
     {
+        private short[] DPCM_CYCLES = { 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 85, 72, 54 };
         public class Wave_Dpcm
         {
             public bool c_enable = true;              
@@ -73,12 +74,12 @@ namespace NESTracer
                     c_counter -= 1;
                 }
             }
-            public short clock_44100()
+            public int clock_44100()
             {
-                short w_out = 0;
+                int w_out = 0;
                 if ((c_enable == true)&& (c_cur_count > 0))
                 {
-                    w_out = (short)((c_value - 64) << 9);
+                    w_out = c_value;
                     nes_main.g_nes_apu.g_freq_out[4] = c_freq_real;
                 }
                 else
