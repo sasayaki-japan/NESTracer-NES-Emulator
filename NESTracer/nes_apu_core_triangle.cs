@@ -16,8 +16,9 @@ namespace NESTracer
             public int c_freq_real = 0;             
             public bool c_linear_count_reset = false;    
             public int c_linear_count = 0;          
-            public int c_counter = 0;               
-            public bool c_vol = false;                   
+            public int c_counter = 0;
+            public bool c_vol_req = false;
+            public bool c_vol = false;
             public int c_duty_cnt = 0;              
             public void clock_120()
             {
@@ -31,7 +32,6 @@ namespace NESTracer
             }
             public void clock_240()
             {
-                c_vol = false;
                 if (c_enable == true)
                 {
                     if (c_linear_count_reset == true)
@@ -50,6 +50,11 @@ namespace NESTracer
                     if ((0 < c_len_count) && (0 < c_linear_count))
                     {
                         c_vol = true;
+                        c_vol_req = false;
+                    }
+                    else
+                    {
+                        c_vol_req = true;
                     }
                 }
             }
@@ -70,6 +75,14 @@ namespace NESTracer
             public int clock_44100()
             {
                 int w_out = 0;
+                if(c_vol_req == true)
+                {
+                    if((c_duty_cnt == 0xf) || (c_duty_cnt == 0x10))
+                    {
+                        c_vol = false;
+                        c_vol_req = false;
+                    }
+                }
                 if (c_vol == true)
                 {
                     w_out = nes_main.g_nes_apu.TRAIANGLE_LOOKUP[c_duty_cnt];
