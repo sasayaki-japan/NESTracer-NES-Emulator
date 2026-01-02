@@ -11,7 +11,6 @@ namespace NESTracer
         public int g_ppu_reg_x;
         public int g_reg_reg_w;
         public bool g_sprite_zero_hit;
-        public int g_sprite_zero_hit_cnt;
         //----------------------------------------------------------------
         public void run(int in_vline)
         {
@@ -19,6 +18,10 @@ namespace NESTracer
             if (g_scanline <= 239)
             {
                 rendering_line(g_scanline);
+                if (g_sprite_zero_hit == true)
+                {
+                    g_io_2002_6_SPRITE = true;
+                }
                 nes_main.g_nes_mapper_control.ppu_irq_line();
             }
             else
@@ -46,15 +49,15 @@ namespace NESTracer
         }
         public void run2()
         {
-        	if (g_scanline <= 239)
+        	            if (g_scanline <= 239)
             {
-                if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
-                {
-                    wrapping_around_y();
-                    g_ppu_reg_v = (g_ppu_reg_v & 0xfbe0)
-                                | (g_ppu_reg_t & 0x041f);
-                }
+            if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
+            {
+                wrapping_around_y();
+                g_ppu_reg_v = (g_ppu_reg_v & 0xfbe0)
+                            | (g_ppu_reg_t & 0x041f);
             }
+        }
             if (g_scanline == 261)
             {
                 if ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true))
@@ -62,19 +65,6 @@ namespace NESTracer
                     g_ppu_reg_v = g_ppu_reg_t;
                 }
             }
-        }
-        public int get_sprite_zero_hit()
-        {
-            int w_out = 10000;
-            if ((g_sprite_zero_hit == true) && (g_io_2002_6_SPRITE == false))
-            {
-                w_out = g_sprite_zero_hit_cnt / 3;
-            }
-            return w_out;
-        }
-        public void set_sprite_zero_hit()
-        {
-            g_io_2002_6_SPRITE = true;
         }
         public void wrapping_around_x()
         {

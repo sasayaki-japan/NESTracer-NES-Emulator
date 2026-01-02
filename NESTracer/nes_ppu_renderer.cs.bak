@@ -140,19 +140,17 @@ namespace NESTracer
                                 {
                                     g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
                                 }
-                                if ((w_spnum == 0)&&(g_sprite_zero_hit == false))
+                                if (w_spnum == 0)
                                 {
                                     g_sprite_zero_hit = true;
-                                    g_sprite_zero_hit_cnt = kx;
                                 }
                             }
                             else
                             {
                                 g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
-                                if ((w_spnum == 0) && (g_sprite_zero_hit == false))
+                                if (w_spnum == 0)
                                 {
                                     g_sprite_zero_hit = true;
-                                    g_sprite_zero_hit_cnt = kx;
                                 }
                             }
                         }

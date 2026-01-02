@@ -229,6 +229,8 @@ namespace NESTracer
             interrupt_IRQ_act = false;
 
             g_clock_total = 0;
+            g_clock_now = 0;
+
         }
     }
 }
