@@ -76,7 +76,7 @@ namespace NESTracer
                     if (g_master_stereo == false)
                     {
                         float w_mix_out1 = 95.88f / ((8128f / (w_mix1 + w_mix2)) + 100);
-                        float w_mix_out2 = 159.79f / ((1.0f / (w_mix3 / 8227f) + (w_mix4 / 12241f) + (w_mix5 / 22638f)) + 100);
+                        float w_mix_out2 = 159.79f / ((1.0f / ((w_mix3 / 8227f) + (w_mix4 / 12241f) + (w_mix5 / 22638f))) + 100);
                         float w_mix_total = w_mix_out1 + w_mix_out2;
                         w_mix_total *= 32768;
                         if ((w_mix1 == 0) && (w_mix2 == 0) && (w_mix3 == 0) && (w_mix4 == 0) && (w_mix5 == 0))
