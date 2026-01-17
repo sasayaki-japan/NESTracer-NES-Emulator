@@ -83,8 +83,6 @@ namespace NESTracer
                         {
                             w_mix_total = 0;
                         }
-                        w_mix_total = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_total));
-
                         g_buffer[g_buffer_cur + 1] = (byte)((short)w_mix_total >> 8);
                         g_buffer[g_buffer_cur + 0] = (byte)((short)w_mix_total & 0xff);
                         g_buffer[g_buffer_cur + 3] = (byte)((short)w_mix_total >> 8);
