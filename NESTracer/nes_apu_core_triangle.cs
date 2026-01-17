@@ -32,6 +32,7 @@ namespace NESTracer
             }
             public void clock_240()
             {
+                c_vol = false;
                 if (c_enable == true)
                 {
                     if (c_linear_count_reset == true)
