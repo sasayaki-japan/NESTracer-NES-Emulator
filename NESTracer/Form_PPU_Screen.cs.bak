@@ -85,7 +85,7 @@ namespace NESTracer
         //----------------------------------------------------------------
         private void Form_PPU_Memory_Paint(object sender, PaintEventArgs e)
         {
-            if (g_layout_enable != nes_main.g_nes_ppu.g_nametable_arrangement)
+            if (g_layout_enable == -1)
             {
                 if (nes_main.g_nes_ppu.g_nametable_arrangement == 2)
                 {
