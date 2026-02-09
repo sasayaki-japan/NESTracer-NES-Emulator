@@ -244,7 +244,7 @@ namespace NESTracer
                                 w_x = (w_addr - 0x27c0) & 0x07;
                                 w_y = ((w_addr - 0x27c0) >> 3) & 0x07;
                             }
-                            set_attrtable(w_name, w_x, w_y, in_val);
+                            set_attrtable(w_addr, in_val);
                         }
                     }
                     else
@@ -311,7 +311,29 @@ namespace NESTracer
             int w_num = (in_address & 0x0c00) >> 10;
             return g_nametable_bank[w_num] + w_offset;
         }
-        public void set_attrtable(int in_name, int in_x, int in_y, byte in_val)
+        public void set_attrtable(int in_addr, byte in_val)
+        {
+            if (((0x23c0 <= in_addr) && (in_addr <= 0x23ff)) ||
+                ((0x27c0 <= in_addr) && (in_addr <= 0x27ff)))
+            {
+                int w_name = 0;
+                int w_x = 0;
+                int w_y = 0;
+                if (in_addr <= 0x23ff)
+                {
+                    w_x = (in_addr - 0x23c0) & 0x07;
+                    w_y = ((in_addr - 0x23c0) >> 3) & 0x07;
+                }
+                else
+                {
+                    w_name = 1;
+                    w_x = (in_addr - 0x27c0) & 0x07;
+                    w_y = ((in_addr - 0x27c0) >> 3) & 0x07;
+                }
+                set_attrtable2(w_name, w_x, w_y, in_val);
+            }
+        }
+        public void set_attrtable2(int in_name, int in_x, int in_y, byte in_val)
         {
             int wpal0 = in_val & 0x03;
             int wpal1 = (in_val >> 2) & 0x03;

@@ -27,7 +27,15 @@
                 new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
                 new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
                 new mapper0(), new mapper21(), new mapper21(), new mapper21(), new mapper0(),
-                new mapper21()
+                new mapper21(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper0(), new mapper68(), new mapper0(),
             };
             g_prg_bank_map = new int[PRG_ROM_MAP_NUM];
             g_chr_bank_map = new int[CHR_ROM_MAP_NUM];
