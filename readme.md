@@ -39,7 +39,7 @@ Note: This program is not intended for playing games illegally. Its purpose is t
   GitHub: https://github.com/sasayaki-japan/NESTracer/tree/main
   
 ## Compatibility
-This tracer only supports mapper 0/1/2/3/4/21
+This tracer only supports mapper 0/1/2/3/4/21/68
 
 ## License  
 This project is licensed under the MIT License. 
