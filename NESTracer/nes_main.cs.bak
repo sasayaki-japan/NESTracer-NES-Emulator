@@ -65,7 +65,7 @@ namespace NESTracer
 
             Task<int> task_cpu = Task.Run<int>(() =>
             {
-                main_loop();
+                run();
                 return 0;
             });
             g_nes_ppu.g_waitHandle = new ManualResetEvent(false);
@@ -100,7 +100,7 @@ namespace NESTracer
             g_form_code_bank.Invalidate();
         }
 
-        private static void main_loop()
+        private static void run()
         {
             int w_log_pef_sum = 0;
             int w_log_pef_cnt = 0;
