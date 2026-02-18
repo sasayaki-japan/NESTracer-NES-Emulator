@@ -42,7 +42,7 @@ namespace NESTracer
             "","","","", "F13","F14","F15","",
             "","","","", "","","","",
             "Kana","","","AbntC1", "","","","",
-            "","Convert","","NoConvert", "","Yen","AbntC2","",
+            "","Convert","NoConvert", "","Yen","AbntC2","",
             "","","","", "","","","",
             "","","","", "","NumberPadEquals","","",
             "PreviousTrack","AT","Colon","Underline", "Kanji","Stop","AX","Unlabeled",
