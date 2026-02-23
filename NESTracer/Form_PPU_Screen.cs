@@ -201,11 +201,6 @@ namespace NESTracer
                 in_pic.Image = (Bitmap)in_bitmap.Clone();
             }
         }
-        public void picture_update(Bitmap in_bitmap1, Bitmap in_bitmap2)
-        {
-            this.Invoke(new UpdatePictureBoxDelegate(this.UpdatePictureBox), new object[] { pictureBox_Nametable12, in_bitmap1 });
-            this.Invoke(new UpdatePictureBoxDelegate(this.UpdatePictureBox), new object[] { pictureBox_Nametable22, in_bitmap2 });
-        }
         //----------------------------------------------------------------
         //Event Handling: Painting
         //----------------------------------------------------------------

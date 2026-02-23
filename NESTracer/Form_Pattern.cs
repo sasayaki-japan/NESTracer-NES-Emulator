@@ -86,12 +86,6 @@ namespace NESTracer
         {
             if(g_update_enable==true)
             {
-                for (int i = 0; i < nes_main.g_nes_mapper_control.g_chr_bank_num; i++)
-                {
-                    picture_make(g_picture_list[i], i);
-                }
-                picture_set(0);
-
                 picture_view();
                 pictureBox.Invalidate();
             }
@@ -161,6 +155,14 @@ namespace NESTracer
             pictureBox_2_2.Image = g_picture_list[nes_main.g_nes_mapper_control.g_chr_bank_map[5]];
             pictureBox_2_3.Image = g_picture_list[nes_main.g_nes_mapper_control.g_chr_bank_map[6]];
             pictureBox_2_4.Image = g_picture_list[nes_main.g_nes_mapper_control.g_chr_bank_map[7]];
+            pictureBox_1_1.Invalidate();
+            pictureBox_1_2.Invalidate();
+            pictureBox_1_3.Invalidate();
+            pictureBox_1_4.Invalidate();
+            pictureBox_2_1.Invalidate();
+            pictureBox_2_2.Invalidate();
+            pictureBox_2_3.Invalidate();
+            pictureBox_2_4.Invalidate();
         }
 
     }
