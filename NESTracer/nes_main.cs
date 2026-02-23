@@ -133,6 +133,7 @@ namespace NESTracer
                     g_nes_6502.run(PPU_LINE_RENDER_CPU_CLOCK);
                     g_nes_ppu.run2();
                     g_nes_apu.run((int)PPU_LINE_RENDER_CPU_CLOCK);
+                    g_nes_mapper_control.cpu_irq_clock((int)PPU_LINE_RENDER_CPU_CLOCK);
                 }
 
                 TimeSpan timeSpan2 = w_stopwatch.Elapsed;

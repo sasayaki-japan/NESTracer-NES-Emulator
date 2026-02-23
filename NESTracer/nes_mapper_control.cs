@@ -23,7 +23,7 @@
         {
             g_mapper = new object[] { 
                 new mapper0(), new mapper1(), new mapper2(), new mapper3(), new mapper4(),
-                new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
+                new mapper0(), new mapper0(), new mapper7(), new mapper0(), new mapper0(),
                 new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
                 new mapper0(), new mapper0(), new mapper0(), new mapper0(), new mapper0(),
                 new mapper0(), new mapper21(), new mapper21(), new mapper21(), new mapper0(),

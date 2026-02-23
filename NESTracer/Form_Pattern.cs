@@ -86,6 +86,12 @@ namespace NESTracer
         {
             if(g_update_enable==true)
             {
+                for (int i = 0; i < nes_main.g_nes_mapper_control.g_chr_bank_num; i++)
+                {
+                    picture_make(g_picture_list[i], i);
+                }
+                picture_set(0);
+
                 picture_view();
                 pictureBox.Invalidate();
             }

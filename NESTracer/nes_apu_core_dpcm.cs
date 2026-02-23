@@ -16,63 +16,62 @@ namespace NESTracer
             public int c_length = 0;                
             public int c_freq_real = 0;             
             public ushort c_cur_address = 0;        
-            public int c_cur_count = 0;             
+            public int c_cur_count = -1;             
             public byte c_cur_byte = 0;             
-            public int c_counter = 0;               
+            public int c_counter = 0;
+
+
+            public int bits_remaining = 0;
             public void clock_apu()
             {
-                if (c_counter <= 0)
+                if ((c_enable == false)||(c_cur_count < 0)) return;
+                if (c_counter > 0)
                 {
-                    c_counter = c_freq;
-                    if ((c_enable == true)&&(c_cur_count > 0))
+                    c_counter -= 1;
+                    return;
+                }
+                c_counter = c_freq;
+
+                if (bits_remaining == 0)
+                {
+                    c_cur_count -= 1;
+                    if (c_cur_count < 0)
                     {
-                        if ((c_cur_count & 0x07) == 0)
+                        if (c_loop == 1)
                         {
-                            c_cur_byte = nes_main.g_nes_bus.read1(c_cur_address);
-                            if (c_cur_address == 0xffff)
-                            {
-                                c_cur_address = 0x8000;
-                            }
-                            else
-                            {
-                                c_cur_address += 1;
-                            }
+                            c_cur_address = c_address;
+                            c_cur_count = c_length;
                         }
-                        c_cur_count -= 1;
-                        if (c_cur_count == 0)
+                        else
                         {
-                            if (c_loop == 1)
+                            if (c_irq == 1)
                             {
-                                c_cur_address = c_address;
-                                c_cur_count = c_length;
+                                nes_main.g_nes_apu.g_apu_reg[0x15] |= 0x80;
+                                return;
                             }
-                            else
-                            {
-                                c_value = 0;
-                                if (c_irq == 1)
-                                {
-                                    nes_main.g_nes_apu.g_apu_reg[0x15] |= 0x80;
-                                }
-                            }
-                        }
-                        if (c_cur_count > 0)
-                        {
-                            if ((c_cur_byte & 1) == 1)
-                            {
-                                if (c_value < 127) c_value += 2;
-                            }
-                            else
-                            {
-                                if (0 < c_value) c_value -= 2;
-                            }
-                            c_cur_byte >>= 1;
                         }
                     }
+                    bits_remaining = 8;
+                    c_cur_byte = nes_main.g_nes_bus.read1(c_cur_address);
+                    if (c_cur_address == 0xffff)
+                    {
+                        c_cur_address = 0x8000;
+                    }
+                    else
+                    {
+                        c_cur_address += 1;
+                    }
+                }
+                bits_remaining -= 1;
+                if ((c_cur_byte & 1) == 1)
+                {
+                    if (c_value < 127) c_value += 2;
                 }
                 else
                 {
-                    c_counter -= 1;
+                    if (0 < c_value) c_value -= 2;
                 }
+                c_cur_byte >>= 1;
             }
             public int clock_44100()
             {

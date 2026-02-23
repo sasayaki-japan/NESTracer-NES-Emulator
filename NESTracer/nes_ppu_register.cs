@@ -217,8 +217,8 @@ namespace NESTracer
                         for (int dx = 0; dx < 8; dx++)
                         {
                             int wd1 = (wchr1 & wcheck_bit) != 0 ? 1 : 0;
-                            int wd2 = (wchr2 & wcheck_bit) != 0 ? 1 : 0;
-                            g_chr_data[w_bank, w_chr, dx + w_dy * 8] = (byte)(wd2 * 2 + wd1);
+                            int wd2 = (wchr2 & wcheck_bit) != 0 ? 2 : 0;
+                            g_chr_data[w_bank, w_chr, dx + w_dy * 8] = (byte)(wd2 + wd1);
                             wcheck_bit = wcheck_bit >> 1;
                         }
                     }

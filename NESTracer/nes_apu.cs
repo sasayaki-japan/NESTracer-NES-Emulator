@@ -63,11 +63,11 @@ namespace NESTracer
             if (g_master_chk[0] == true)
             {
                 float w_master = g_master_vol[0] / 100.0f;
-                if (g_master_chk[1] == true) g_out_vol[1] = 0.12f * (g_master_vol[1] / 100.0f) / w_master;
-                if (g_master_chk[2] == true) g_out_vol[2] = 0.12f * (g_master_vol[2] / 100.0f) / w_master;
-                if (g_master_chk[3] == true) g_out_vol[3] = 0.14f * (g_master_vol[3] / 100.0f) / w_master;
-                if (g_master_chk[4] == true) g_out_vol[4] = 0.08f * (g_master_vol[4] / 100.0f) / w_master;
-                if (g_master_chk[5] == true) g_out_vol[5] = 0.43f * (g_master_vol[5] / 100.0f) / w_master;
+                if (g_master_chk[1] == true) g_out_vol[1] = (g_master_vol[1] / 100.0f) / w_master;
+                if (g_master_chk[2] == true) g_out_vol[2] = (g_master_vol[2] / 100.0f) / w_master;
+                if (g_master_chk[3] == true) g_out_vol[3] = (g_master_vol[3] / 100.0f) / w_master;
+                if (g_master_chk[4] == true) g_out_vol[4] = (g_master_vol[4] / 100.0f) / w_master;
+                if (g_master_chk[5] == true) g_out_vol[5] = (g_master_vol[5] / 100.0f) / w_master;
             }
             nes_main.write_setting();
         }

@@ -111,25 +111,29 @@ namespace NESTracer
             }
 
             g_chr_data = new byte[nes_main.g_nes_mapper_control.g_chr_bank_num, 64, 64];
-            for (int wbank = 0; wbank < nes_main.g_nes_mapper_control.g_chr_bank_num; wbank++)
+            if(nes_main.g_nes_cartridge.g_chr_rom_size != 0)
             {
-                for (int wchr = 0; wchr < 64; wchr++)
+                for (int wbank = 0; wbank < nes_main.g_nes_mapper_control.g_chr_bank_num; wbank++)
                 {
-                    for (int dy = 0; dy < 8; dy++)
+                    for (int wchr = 0; wchr < 64; wchr++)
                     {
-                        int wcur = wchr * 16 + dy;
-                        int wchr1 = g_rom[wbank, wcur];
-                        int wchr2 = g_rom[wbank, wcur + 8];
-                        int wcheck_bit = 0x80;
-                        for (int dx = 0; dx < 8; dx++)
+                        for (int dy = 0; dy < 8; dy++)
                         {
-                            int wd1 = (wchr1 & wcheck_bit) != 0 ? 1 : 0;
-                            int wd2 = (wchr2 & wcheck_bit) != 0 ? 1 : 0;
-                            g_chr_data[wbank, wchr, dx + dy * 8] = (byte)(wd2 * 2 + wd1);
-                            wcheck_bit = wcheck_bit >> 1;
+                            int wcur = wchr * 16 + dy;
+                            int wchr1 = g_rom[wbank, wcur];
+                            int wchr2 = g_rom[wbank, wcur + 8];
+                            int wcheck_bit = 0x80;
+                            for (int dx = 0; dx < 8; dx++)
+                            {
+                                int wd1 = (wchr1 & wcheck_bit) != 0 ? 1 : 0;
+                                int wd2 = (wchr2 & wcheck_bit) != 0 ? 1 : 0;
+                                g_chr_data[wbank, wchr, dx + dy * 8] = (byte)(wd2 * 2 + wd1);
+                                wcheck_bit = wcheck_bit >> 1;
+                            }
                         }
                     }
                 }
+
             }
         }
     }

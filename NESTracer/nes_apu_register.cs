@@ -195,6 +195,7 @@ namespace NESTracer
                         g_wave_dpcm.c_freq_real = g_wave_dpcm.c_freq;
                         g_wave_dpcm.c_cur_address = g_wave_dpcm.c_address;
                         g_wave_dpcm.c_cur_count = g_wave_dpcm.c_length;
+                        g_wave_dpcm.bits_remaining = 0;
 
                     }
                     g_wave_dpcm.c_irq = 0;
