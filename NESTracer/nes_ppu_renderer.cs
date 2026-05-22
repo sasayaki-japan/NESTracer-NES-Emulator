@@ -29,22 +29,16 @@ namespace NESTracer
                 int w_view_y = (((g_ppu_reg_v & 0x03e0) >> 2) | ((g_ppu_reg_v & 0x7000) >> 12));
                 int w_base_x = ((g_ppu_reg_v & 0x0400) >> 10);
                 int w_base_y = ((g_ppu_reg_v & 0x0800) >> 11);
-                int w_name = 0;
-                switch (g_nametable_arrangement)
-                {
-                    case 0: w_name = 0; break;
-                    case 1: w_name = 1; break;
-                    case 2: w_name = w_base_y; break;
-                    case 3: w_name = w_base_x; break;
-                }
+                int w_name = (w_base_y << 1) | w_base_x;
                 int w_view_dx = 8;
                 int w_attr = 0;
-                int w_bank = 0;
-                int w_bank_chr = 0;
-                int w_offset = (w_view_y & 0x07) << 3;
+                int w_offset = 0;
                 int w_view_cy = w_view_y >> 3;
                 int wx_top = 0;
-                if (g_io_2001_1_BGleftmost == true)
+                int w_base = ((g_io_2000_4_BGMEM == false) ? 0x0000 : 0x1000) + (w_view_y & 0x07); 
+                int w_chr = 0;
+
+                if (g_io_2001_1_BGleftmost == false)
                 {
                     w_view_x += 8;
                     wx_top = 8;
@@ -55,17 +49,47 @@ namespace NESTracer
                     {
                         if (256 <= w_view_x)
                         {
-                            if(g_nametable_arrangement == 3) w_name ^= 1;
+                            w_name ^= 1;
                             w_view_x -= 256;
                         }
                         int w_view_cx = w_view_x >> 3;
                         w_view_dx = w_view_x & 7;
-                        int w_chr = g_ram[0x2000 + (0x400 * w_name) + (w_view_cy << 5) + w_view_cx];
-                        w_attr = g_attrtable[w_name, w_view_cx, w_view_cy] << 2;
-                        w_bank = get_bank(w_bgmem, w_chr);
-                        w_bank_chr = get_bank_chr(w_bgmem, w_chr);
+                        int w_name_addr = get_nametable_address(0x2000 + (0x400 * w_name) + (w_view_cy << 5) + w_view_cx);
+                        int w_attr_addr = get_nametable_address(0x23c0 + (0x400 * w_name) + ((w_view_cy << 1) & 0xf8) + (w_view_cx >> 2));
+                        w_chr = g_ram[w_name_addr];
+                        w_attr = g_ram[w_attr_addr];
+                        if((w_view_cy & 0x03) < 2)
+                        {
+                            if((w_view_cx & 0x03) < 2)
+                            {
+                                w_attr = (w_attr & 0x03);
+                            }
+                            else
+                            {
+                                w_attr = (w_attr >> 2) & 0x03;
+                            }
+                        }
+                        else
+                        {
+                            if ((w_view_cx & 0x03) < 2)
+                            {
+                                w_attr = (w_attr >> 4) & 0x03;
+                            }
+                            else
+                            {
+                                w_attr = (w_attr >> 6) & 0x03;
+                            }
+                        }
+                        w_attr <<= 2;
+
+
+
+                        w_offset = w_base + (w_chr * 16);
                     }
-                    g_game_cmap[wx] = (uint)(g_chr_data[w_bank, w_bank_chr, w_offset + w_view_dx] + w_attr);
+                    int w_shift = 7 - ((w_view_dx & 0x07));
+                    int w_bit1 = (int)((g_ram[w_offset] >> w_shift) & 0x01);
+                    int w_bit2 = (int)((g_ram[w_offset + 8] >> w_shift) & 0x01);
+                    g_game_cmap[wx] = (uint)(((w_bit2<<1)+w_bit1) + w_attr);
                     w_view_x += 1;
                     w_view_dx += 1;
                 }
@@ -122,38 +146,37 @@ namespace NESTracer
                         }
                     }
                     int w_offset = cy << 3;
-                    int w_bank = get_bank(w_spmem, w_chr);
-                    int w_bank_chr = get_bank_chr(w_spmem, w_chr);
+                    int w_base = (w_spmem * 0x1000) + cy + (w_chr * 16);
                     for (int j = 0; j <= 7; j++)
                     {
                         int cx = j;
                         if (w_attr_horizon == 1) cx = 7 - j;
                         int kx = w_x + j;
                         if (255 < kx) break;
-                        if ((g_io_2001_2_SPleftmost == true) && (kx < 8)) continue;
-                        byte w_cor = g_chr_data[w_bank, w_bank_chr, w_offset + cx];
+                        if ((g_io_2001_2_SPleftmost == false) && (kx < 8)) continue;
+                        int w_shift = 7 - cx;
+                        int w_bit1 = (int)((g_ram[w_base] >> w_shift) & 0x01);
+                        int w_bit2 = (int)((g_ram[w_base + 8] >> w_shift) & 0x01);
+                        byte w_cor = (byte)(((w_bit2 << 1) + w_bit1));
                         if (w_cor != 0)
                         {
+                            bool w_bg_opaque = (g_game_cmap[kx] & 3) != 0;
+                            if (w_spnum == 0 && w_bg_opaque == true && kx != 255)
+                            {
+                                g_sprite_zero_hit = true;
+                                g_sprite_zero_hit_cnt = kx;
+                            }
+
                             if (w_attr_depth == 1)
                             {
                                 if ((g_game_cmap[kx] & 3) == 0)
                                 {
                                     g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
                                 }
-                                if ((w_spnum == 0)&&(g_sprite_zero_hit == false))
-                                {
-                                    g_sprite_zero_hit = true;
-                                    g_sprite_zero_hit_cnt = kx;
-                                }
                             }
                             else
                             {
                                 g_game_cmap[kx] = (uint)(w_cor + w_attr_pallet + 0x10);
-                                if ((w_spnum == 0) && (g_sprite_zero_hit == false))
-                                {
-                                    g_sprite_zero_hit = true;
-                                    g_sprite_zero_hit_cnt = kx;
-                                }
                             }
                         }
                     }

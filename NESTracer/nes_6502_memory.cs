@@ -7,32 +7,11 @@
 
         public byte read1(ushort in_address)
         {
-            byte w_out = 0;
-            if (in_address >= 0x8000)
-            {
-                w_out = nes_main.g_nes_mapper_control.prg_read1(in_address);
-            }
-            else
-            {
-                w_out = g_ram[in_address];
-            }
-            return w_out;
+            return g_ram[in_address];
         }
         public ushort read2(ushort in_address)
         {
-            ushort w_out = 0;
-            if (in_address >= 0x8000)
-            {
-                w_out = nes_main.g_nes_mapper_control.prg_read1(in_address);
-                in_address += 1;
-                w_out += (ushort)(nes_main.g_nes_mapper_control.prg_read1(in_address) << 8);
-            }
-            else
-            {
-                w_out = (ushort)(g_ram[in_address]
-                        + (g_ram[in_address + 1] << 8));
-            }
-            return w_out;
+            return (ushort)(g_ram[in_address] + (g_ram[in_address + 1] << 8));
         }
         //----------------------------------------------------------------
         //メモリ書き込み

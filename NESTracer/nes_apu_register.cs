@@ -11,13 +11,13 @@ namespace NESTracer
             switch (in_address)
             {
                 case 0x4015:
-                    g_apu_reg[0x15] &= 0xc0;
+                    w_out = (byte)(g_apu_reg[0x15] & 0xc0);
                     if (g_wave_square1.c_len_count > 0) w_out |= 0x01;
                     if (g_wave_square2.c_len_count > 0) w_out |= 0x02;
                     if (g_wave_triangle.c_len_count > 0) w_out |= 0x04;
                     if (g_wave_noise.c_len_count > 0) w_out |= 0x08;
-                    if (g_wave_dpcm.c_enable == true) w_out |= 0x10;
-                    w_out = g_apu_reg[0x15];
+                    if (g_wave_dpcm.c_cur_count > 0 || g_wave_dpcm.bits_remaining > 0) w_out |= 0x10;
+                    if (g_wave_dpcm.c_irq_flag == true) w_out |= 0x80;
                     g_apu_reg[0x15] &= 0xbf;
                     break;
                 default:
@@ -65,7 +65,7 @@ namespace NESTracer
                 case 0x4003:
                     g_wave_square1.c_freq = g_apu_reg[2] | ((in_val & 0x07) << 8);
                     g_wave_square1.c_freq_real = (int)(CPU_CLOCK / ((g_wave_square1.c_freq + 1) << 4));
-                    g_wave_square1.c_len_count = KEYOFF[in_val >> 3] * 2;
+                    if ((g_apu_reg[0x15] & 0x01) != 0) g_wave_square1.c_len_count = KEYOFF[in_val >> 3] * 2;
                     g_wave_square1.c_counter = g_wave_square1.c_volume + 1;
                     g_wave_square1.c_envelope_vol = 15;
                     g_wave_square1.c_duty_cnt = 0;
@@ -95,7 +95,7 @@ namespace NESTracer
                 case 0x4007:
                     g_wave_square2.c_freq = g_apu_reg[6] | ((in_val & 0x07) << 8);
                     g_wave_square2.c_freq_real = (int)(CPU_CLOCK / ((g_wave_square2.c_freq + 1) << 4));
-                    g_wave_square2.c_len_count = KEYOFF[in_val >> 3] * 2;
+                    if ((g_apu_reg[0x15] & 0x02) != 0) g_wave_square2.c_len_count = KEYOFF[in_val >> 3] * 2;
                     g_wave_square2.c_counter = g_wave_square2.c_volume + 1;
                     g_wave_square2.c_envelope_vol = 15;
                     g_wave_square2.c_duty_cnt = 0;
@@ -112,7 +112,7 @@ namespace NESTracer
                 case 0x400b:
                     g_wave_triangle.c_freq = g_apu_reg[0x0a] | ((in_val & 0x07) << 8);
                     g_wave_triangle.c_freq_real = (int)(CPU_CLOCK / ((g_wave_triangle.c_freq + 1) << 5));
-                    g_wave_triangle.c_len_count = KEYOFF[in_val >> 3] * 2;
+                    if ((g_apu_reg[0x15] & 0x04) != 0) g_wave_triangle.c_len_count = KEYOFF[in_val >> 3] * 2;
                     g_wave_triangle.c_linear_count_reset = true;
                     g_wave_triangle.c_linear_count = 0;
                     break;
@@ -127,7 +127,7 @@ namespace NESTracer
                     g_wave_noise.c_noisetype = in_val >> 7;
                     break;
                 case 0x400f:
-                    g_wave_noise.c_len_count = KEYOFF[in_val >> 3] * 2;
+                    if ((g_apu_reg[0x15] & 0x08) != 0) g_wave_noise.c_len_count = KEYOFF[in_val >> 3] * 2;
                     g_wave_noise.c_envelope_vol = 15;
                     //g_wave_noise.c_shift_reg = 1;
                     break;
@@ -137,6 +137,7 @@ namespace NESTracer
                     g_wave_dpcm.c_irq = in_val >> 7;
                     if (g_wave_dpcm.c_irq == 0)
                     {
+                        g_wave_dpcm.c_irq_flag = false;
                         g_apu_reg[0x15] &= 0x7f;     
                     }
                     break;
@@ -147,12 +148,13 @@ namespace NESTracer
                     g_wave_dpcm.c_address = (ushort)(0xc000 + (ushort)(in_val << 6));
                     break;
                 case 0x4013:
-                    g_wave_dpcm.c_length = in_val << 7;
+                    g_wave_dpcm.c_length = (in_val << 4) + 1;
                     break;
                 case 0x4015:
                     if ((in_val & 0x01) == 0)
                     {
                         g_wave_square1.c_enable = false;
+                        g_wave_square1.c_len_count = 0;
                     }
                     else
                     {
@@ -161,6 +163,7 @@ namespace NESTracer
                     if ((in_val & 0x02) == 0)
                     {
                         g_wave_square2.c_enable = false;
+                        g_wave_square2.c_len_count = 0;
                     }
                     else
                     {
@@ -169,6 +172,7 @@ namespace NESTracer
                     if ((in_val & 0x04) == 0)
                     {
                         g_wave_triangle.c_enable = false;
+                        g_wave_triangle.c_len_count = 0;
                         g_wave_triangle.c_linear_count = 0;
                         g_wave_triangle.c_linear_count_reset = false;
                     }
@@ -188,17 +192,22 @@ namespace NESTracer
                     if ((in_val & 0x10) == 0)
                     {
                         g_wave_dpcm.c_enable = false;
+                        g_wave_dpcm.c_cur_count = 0;
+                        g_wave_dpcm.bits_remaining = 0;
                     }
                     else
                     {
                         g_wave_dpcm.c_enable = true;
-                        g_wave_dpcm.c_freq_real = g_wave_dpcm.c_freq;
-                        g_wave_dpcm.c_cur_address = g_wave_dpcm.c_address;
-                        g_wave_dpcm.c_cur_count = g_wave_dpcm.c_length;
-                        g_wave_dpcm.bits_remaining = 0;
+                        if (g_wave_dpcm.c_cur_count == 0 && g_wave_dpcm.bits_remaining == 0)
+                        {
+                            g_wave_dpcm.c_freq_real = g_wave_dpcm.c_freq;
+                            g_wave_dpcm.c_cur_address = g_wave_dpcm.c_address;
+                            g_wave_dpcm.c_cur_count = g_wave_dpcm.c_length;
+                            g_wave_dpcm.bits_remaining = 0;
+                        }
 
                     }
-                    g_wave_dpcm.c_irq = 0;
+                    g_wave_dpcm.c_irq_flag = false;
                     g_apu_reg[0x15] &= 0x7f;     
                     break;
                 case 0x4017:

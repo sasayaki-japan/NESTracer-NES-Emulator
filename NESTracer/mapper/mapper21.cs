@@ -27,6 +27,11 @@ namespace NESTracer
         public void initialize()
         {
             g_bankreg = new int[BANKg_reg_NUM];
+            g_select_bank = 0;
+            g_irq_enable = 0;
+            g_irq_counter = 0;
+            g_irq_latch = 0;
+            g_irq_clock = 0;
             switch(nes_main.g_nes_mapper_control.g_mapper_num)
             {
                 case 21:

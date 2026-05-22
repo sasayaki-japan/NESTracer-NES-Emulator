@@ -7,7 +7,7 @@ namespace NESTracer
         private short[] DPCM_CYCLES = { 428, 380, 340, 320, 286, 254, 226, 214, 190, 160, 142, 128, 106, 85, 72, 54 };
         public class Wave_Dpcm
         {
-            public bool c_enable = true;              
+            public bool c_enable = false;              
             public int c_freq = 0;                  
             public int c_loop = 0;                  
             public int c_irq = 0;                   
@@ -16,15 +16,16 @@ namespace NESTracer
             public int c_length = 0;                
             public int c_freq_real = 0;             
             public ushort c_cur_address = 0;        
-            public int c_cur_count = -1;             
+            public int c_cur_count = 0;             
             public byte c_cur_byte = 0;             
             public int c_counter = 0;
+            public bool c_irq_flag = false;
 
 
             public int bits_remaining = 0;
             public void clock_apu()
             {
-                if ((c_enable == false)||(c_cur_count < 0)) return;
+                if (c_enable == false) return;
                 if (c_counter > 0)
                 {
                     c_counter -= 1;
@@ -34,8 +35,7 @@ namespace NESTracer
 
                 if (bits_remaining == 0)
                 {
-                    c_cur_count -= 1;
-                    if (c_cur_count < 0)
+                    if (c_cur_count == 0)
                     {
                         if (c_loop == 1)
                         {
@@ -46,13 +46,16 @@ namespace NESTracer
                         {
                             if (c_irq == 1)
                             {
+                                c_irq_flag = true;
                                 nes_main.g_nes_apu.g_apu_reg[0x15] |= 0x80;
-                                return;
+                                nes_main.g_nes_6502.interrupt_IRQ = true;
                             }
+                            return;
                         }
                     }
                     bits_remaining = 8;
                     c_cur_byte = nes_main.g_nes_bus.read1(c_cur_address);
+                    c_cur_count -= 1;
                     if (c_cur_address == 0xffff)
                     {
                         c_cur_address = 0x8000;
@@ -75,10 +78,9 @@ namespace NESTracer
             }
             public int clock_44100()
             {
-                int w_out = 0;
-                if ((c_enable == true)&& (c_cur_count > 0))
+                int w_out = c_value;
+                if (c_enable == true && (c_cur_count > 0 || bits_remaining > 0))
                 {
-                    w_out = c_value;
                     nes_main.g_nes_apu.g_freq_out[4] = c_freq_real;
                 }
                 else

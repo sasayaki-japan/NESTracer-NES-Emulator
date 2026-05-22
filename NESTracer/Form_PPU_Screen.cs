@@ -105,10 +105,12 @@ namespace NESTracer
                 }
                 g_layout_enable = nes_main.g_nes_ppu.g_nametable_arrangement;
             }
+            
             pictureBox_Nametable1.Invalidate();
             pictureBox_Nametable2.Invalidate();
             pictureBox_PalleteBG.Invalidate();
             pictureBox_PalleteSP.Invalidate();
+            
         }
 
         private void pictureBox_Nametable1_Paint(object sender, PaintEventArgs e)

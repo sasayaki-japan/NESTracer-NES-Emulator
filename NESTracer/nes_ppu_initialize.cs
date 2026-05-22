@@ -72,7 +72,7 @@ namespace NESTracer
                     for (int i = 0; i < nes_mapper_control.CHR_ROM_BANK_SIZE; i++)
                     {
                         nes_main.g_nes_ppu.g_rom[wbank, i]
-                            = nes_main.g_nes_cartridge.g_file[16 + nes_main.g_nes_cartridge.g_prg_rom_size
+                            = nes_main.g_nes_cartridge.g_file[nes_main.g_nes_cartridge.g_chr_rom_offset
                                                         + (wbank * nes_mapper_control.CHR_ROM_BANK_SIZE) + i];
                     }
                 }
@@ -88,9 +88,9 @@ namespace NESTracer
             if (nes_main.g_nes_cartridge.g_ignore_mirroring == 1)
             {
                 g_nametable_bank[0] = 0x2000;
-                g_nametable_bank[1] = 0x2000;
-                g_nametable_bank[2] = 0x2000;
-                g_nametable_bank[3] = 0x2000;
+                g_nametable_bank[1] = 0x2400;
+                g_nametable_bank[2] = 0x2800;
+                g_nametable_bank[3] = 0x2c00;
             }
             else
             {

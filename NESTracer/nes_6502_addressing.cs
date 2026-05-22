@@ -34,6 +34,7 @@
 
         private ushort addressing_address()
         {
+            ushort w_baseaddress = 0;
             ushort w_address = 0;
             switch (g_op.addr)
             {
@@ -53,20 +54,22 @@
                     w_address = nes_main.g_nes_bus.read2(g_reg_PC);
                     break;
                 case ADDRESSING_TYPE.AbsoluteX:
-                    w_address = (ushort)(nes_main.g_nes_bus.read2(g_reg_PC) + g_reg_X);
+                    w_baseaddress = nes_main.g_nes_bus.read2(g_reg_PC);
+                    w_address = (ushort)(w_baseaddress + g_reg_X);
                     if(g_op.page_boundary == true)
                     {
-                        if ((g_reg_PC & 0xff00) != (w_address & 0xff00))
+                        if ((w_baseaddress & 0xff00) != (w_address & 0xff00))
                         {
                             g_clock_opt += 1;
                         }
                     }
                     break;
                 case ADDRESSING_TYPE.AbsoluteY:
-                    w_address = (ushort)(nes_main.g_nes_bus.read2(g_reg_PC) + g_reg_Y);
+                    w_baseaddress = nes_main.g_nes_bus.read2(g_reg_PC);
+                    w_address = (ushort)(w_baseaddress + g_reg_Y);
                     if (g_op.page_boundary == true)
                     {
-                        if ((g_reg_PC & 0xff00) != (w_address & 0xff00))
+                        if ((w_baseaddress & 0xff00) != (w_address & 0xff00))
                         {
                             g_clock_opt += 1;
                         }
@@ -84,13 +87,13 @@
                         | (nes_main.g_nes_bus.read1((ushort)((w_address + 1) & 0xff)) << 8));
                     break;
                 case ADDRESSING_TYPE.IndirectY:
-                    w_address = nes_main.g_nes_bus.read1(g_reg_PC);
-                    w_address = (ushort)(nes_main.g_nes_bus.read1(w_address)
-                        | (nes_main.g_nes_bus.read1((ushort)((w_address + 1) & 0xff)) << 8));
-                    w_address = (ushort)(w_address + g_reg_Y);
+                    w_baseaddress = nes_main.g_nes_bus.read1(g_reg_PC);
+                    w_baseaddress = (ushort)(nes_main.g_nes_bus.read1(w_baseaddress)
+                        | (nes_main.g_nes_bus.read1((ushort)((w_baseaddress + 1) & 0xff)) << 8));
+                    w_address = (ushort)(w_baseaddress + g_reg_Y);
                     if (g_op.page_boundary == true)
                     {
-                        if ((g_reg_PC & 0xff00) != (w_address & 0xff00))
+                        if ((w_baseaddress & 0xff00) != (w_address & 0xff00))
                         {
                             g_clock_opt += 1;
                         }

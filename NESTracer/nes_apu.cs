@@ -22,7 +22,9 @@ namespace NESTracer
         private int g_4017_6_frame_Interrupt;
 
         private BufferedWaveProvider g_bufferedwaveprovider;
-        private WaveOut g_waveOut;
+        private WaveOutEvent g_waveOut;
+        private byte[] g_buffer;
+        private int g_buffer_cur = 0;
         public Wave_Square g_wave_square1;
         public Wave_Square g_wave_square2;
         public Wave_Triangle g_wave_triangle;
@@ -39,9 +41,12 @@ namespace NESTracer
             g_freq_out = new int[5];
 
             g_bufferedwaveprovider = new BufferedWaveProvider(new WaveFormat(SAMPLING, BIT, CHANNELS));
-            g_waveOut = new WaveOut();
+            g_bufferedwaveprovider.BufferDuration = TimeSpan.FromMilliseconds(200);
+            g_bufferedwaveprovider.DiscardOnBufferOverflow = true;
+            g_waveOut = new WaveOutEvent();
+            g_waveOut.DesiredLatency = 100;
             g_waveOut.Init(g_bufferedwaveprovider);
-            g_waveOut.Play();
+            g_buffer = new byte[BUFSIZE];
 
             g_wave_square1 = new Wave_Square();
             g_wave_square1.c_mode = 0;
@@ -50,10 +55,9 @@ namespace NESTracer
             g_wave_triangle = new Wave_Triangle();
             g_wave_noise = new Wave_Noise();
             g_wave_dpcm = new Wave_Dpcm();
-
-            g_buffer = new byte[BUFSIZE];
+            g_waveOut.Play();
         }
-        public void setting()
+        public void setting(bool in_write_setting = true)
         {
             g_out_vol[1] = 0;
             g_out_vol[2] = 0;
@@ -62,14 +66,17 @@ namespace NESTracer
             g_out_vol[5] = 0;
             if (g_master_chk[0] == true)
             {
-                float w_master = g_master_vol[0] / 100.0f;
-                if (g_master_chk[1] == true) g_out_vol[1] = (g_master_vol[1] / 100.0f) / w_master;
-                if (g_master_chk[2] == true) g_out_vol[2] = (g_master_vol[2] / 100.0f) / w_master;
-                if (g_master_chk[3] == true) g_out_vol[3] = (g_master_vol[3] / 100.0f) / w_master;
-                if (g_master_chk[4] == true) g_out_vol[4] = (g_master_vol[4] / 100.0f) / w_master;
-                if (g_master_chk[5] == true) g_out_vol[5] = (g_master_vol[5] / 100.0f) / w_master;
+                float w_master = Math.Clamp(g_master_vol[0], 0, 100) / 100.0f;
+                if (g_master_chk[1] == true) g_out_vol[1] = (Math.Clamp(g_master_vol[1], 0, 100) / 100.0f) * w_master;
+                if (g_master_chk[2] == true) g_out_vol[2] = (Math.Clamp(g_master_vol[2], 0, 100) / 100.0f) * w_master;
+                if (g_master_chk[3] == true) g_out_vol[3] = (Math.Clamp(g_master_vol[3], 0, 100) / 100.0f) * w_master;
+                if (g_master_chk[4] == true) g_out_vol[4] = (Math.Clamp(g_master_vol[4], 0, 100) / 100.0f) * w_master;
+                if (g_master_chk[5] == true) g_out_vol[5] = (Math.Clamp(g_master_vol[5], 0, 100) / 100.0f) * w_master;
             }
-            nes_main.write_setting();
+            if (in_write_setting == true)
+            {
+                nes_main.write_setting();
+            }
         }
     }
 }

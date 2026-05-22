@@ -174,7 +174,7 @@ namespace NESTracer
         {
             interrupt_NMI_act = false;
             interrupt_IRQ_act = false;
-            
+           
             pop_P();
 
             ushort w_addr = 0;
@@ -187,10 +187,6 @@ namespace NESTracer
             if (w_ret.type == "NMI")
             {
                 w_addr = nes_main.g_nes_bus.read2(0xFFFA);
-            }
-            if (w_addr == 0)
-            {
-                w_addr = w_addr;
             }
             //Form_Code_Analyse.gcode_write_func_address(g_reg_PC - 1, nes_main.g_nes_mapper_control.g_prg_bank_num - 1, w_addr);
 
@@ -208,10 +204,11 @@ namespace NESTracer
         {
             if (evaluation == true)
             {
-                ushort pc_back = g_reg_PC;
+                ushort pc_back = (ushort)(g_reg_PC + 1);
                 sbyte w_offset = (sbyte)nes_main.g_nes_bus.read1(g_reg_PC);
-                g_reg_PC = (ushort)(g_reg_PC + w_offset);
-                if ((g_reg_PC & 0xff00) != (pc_back & 0xff00))
+                ushort w_target = (ushort)(pc_back + w_offset);
+                g_reg_PC = (ushort)(w_target - 1);
+                if ((w_target & 0xff00) != (pc_back & 0xff00))
                 {
                     g_clock_opt += 2;
                 }
@@ -230,9 +227,10 @@ namespace NESTracer
         private void op_SEI() => g_flag_I = true;
         private void op_BRK()
         {
-            push_P();
-            push2(g_reg_PC, "BRK");
             g_flag_B = true;
+            push2((ushort)(g_reg_PC + 1), "BRK");
+            push_P();
+            g_flag_I = true;
             g_reg_PC = nes_main.g_nes_bus.read2(0xFFFE);
         }
         private void op_NOP()

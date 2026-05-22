@@ -22,6 +22,7 @@
         }
         public void chr_rom_setting()
         {
+            nes_main.g_nes_mapper_control.set_chr_rom_bank_8k(0, 0);
         }
         public void cpu_write1(int in_address, byte in_val)
         {

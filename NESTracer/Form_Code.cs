@@ -1,4 +1,4 @@
-﻿using NAudio.Gui;
+using NAudio.Gui;
 using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using static NESTracer.Form_Code_Trace;
@@ -317,7 +317,7 @@ namespace NESTracer
                     }
                 }
             }
-            if ((in_line - w_line > 100) || (in_line - w_line < -100)) w_line = w_line;
+            if ((in_line - w_line > 100) || (in_line - w_line < -100)) w_line = in_line;
 
 
             g_top_line = w_line;

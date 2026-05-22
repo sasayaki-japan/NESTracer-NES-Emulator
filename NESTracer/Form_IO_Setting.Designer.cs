@@ -1,4 +1,4 @@
-﻿namespace NESTracer
+namespace NESTracer
 {
     partial class Form_IO_Setting
     {
@@ -37,7 +37,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(22, 18);
+            label1.Location = new Point(12, 9);
             label1.Name = "label1";
             label1.Size = new Size(269, 15);
             label1.TabIndex = 0;
@@ -45,7 +45,7 @@
             // 
             // button_cancel
             // 
-            button_cancel.Location = new Point(186, 40);
+            button_cancel.Location = new Point(182, 40);
             button_cancel.Name = "button_cancel";
             button_cancel.Size = new Size(75, 23);
             button_cancel.TabIndex = 1;
@@ -59,7 +59,7 @@
             // 
             // button_clear
             // 
-            button_clear.Location = new Point(64, 40);
+            button_clear.Location = new Point(60, 40);
             button_clear.Name = "button_clear";
             button_clear.Size = new Size(75, 23);
             button_clear.TabIndex = 2;
@@ -71,7 +71,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(303, 75);
+            ClientSize = new Size(299, 75);
             Controls.Add(button_clear);
             Controls.Add(button_cancel);
             Controls.Add(label1);

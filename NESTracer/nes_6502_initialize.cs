@@ -7,7 +7,7 @@ namespace NESTracer
     {
         public void initialize()
         {
-            g_ram = new byte[0x8000];
+            g_ram = new byte[0x10000];
             g_stack = new STACKLIST[STACK_SIZE];
 
             g_oplist = new OPLIST[256];
@@ -38,7 +38,7 @@ namespace NESTracer
             g_oplist[0x9D] = new OPLIST() { func = op_STA, opname_out = "STA", format = "VAL,X", addr = ADDRESSING_TYPE.AbsoluteX, size = 3, clock = 5 };
             g_oplist[0x99] = new OPLIST() { func = op_STA, opname_out = "STA", format = "VAL,Y", addr = ADDRESSING_TYPE.AbsoluteY, size = 3, clock = 5 };
             g_oplist[0x81] = new OPLIST() { func = op_STA, opname_out = "STA", format = "(VAL,X)", addr = ADDRESSING_TYPE.IndirectX, size = 2, clock = 6 };
-            g_oplist[0x91] = new OPLIST() { func = op_STA, opname_out = "STA", format = "(VAL),Y", addr = ADDRESSING_TYPE.IndirectY, size = 2, clock = 5 };
+            g_oplist[0x91] = new OPLIST() { func = op_STA, opname_out = "STA", format = "(VAL),Y", addr = ADDRESSING_TYPE.IndirectY, size = 2, clock = 6 };
 
             g_oplist[0x86] = new OPLIST() { func = op_STX, opname_out = "STX", format = "VAL", addr = ADDRESSING_TYPE.Zeropage, size = 2, clock = 3 };
             g_oplist[0x96] = new OPLIST() { func = op_STX, opname_out = "STX", format = "VAL,Y", addr = ADDRESSING_TYPE.ZeropageY, size = 2, clock = 4 };
@@ -102,7 +102,7 @@ namespace NESTracer
             g_oplist[0xC6] = new OPLIST() { func = op_DEC, opname_out = "DEC", format = "VAL", addr = ADDRESSING_TYPE.Zeropage, size = 2, clock = 5 };
             g_oplist[0xD6] = new OPLIST() { func = op_DEC, opname_out = "DEC", format = "VAL,X", addr = ADDRESSING_TYPE.ZeropageX, size = 2, clock = 6 };
             g_oplist[0xCE] = new OPLIST() { func = op_DEC, opname_out = "DEC", format = "VAL", addr = ADDRESSING_TYPE.Absolute, size = 3, clock = 6 };
-            g_oplist[0xDE] = new OPLIST() { func = op_DEC, opname_out = "DEC", format = "VAL,Y", addr = ADDRESSING_TYPE.AbsoluteX, size = 3, clock = 7 };
+            g_oplist[0xDE] = new OPLIST() { func = op_DEC, opname_out = "DEC", format = "VAL,X", addr = ADDRESSING_TYPE.AbsoluteX, size = 3, clock = 7 };
 
             g_oplist[0xCA] = new OPLIST() { func = op_DEX, opname_out = "DEX", format = "", addr = ADDRESSING_TYPE.Implied, size = 1, clock = 2 };
             g_oplist[0x88] = new OPLIST() { func = op_DEY, opname_out = "DEY", format = "", addr = ADDRESSING_TYPE.Implied, size = 1, clock = 2 };
@@ -201,7 +201,7 @@ namespace NESTracer
                 for (int i = 0; i < nes_mapper_control.PRG_ROM_BANK_SIZE; i++)
                 {
                     nes_main.g_nes_6502.g_rom[wbank, i]
-                        = nes_main.g_nes_cartridge.g_file[16 + (wbank * nes_mapper_control.PRG_ROM_BANK_SIZE) + i];
+                        = nes_main.g_nes_cartridge.g_file[nes_main.g_nes_cartridge.g_prg_rom_offset + (wbank * nes_mapper_control.PRG_ROM_BANK_SIZE) + i];
                 }
             }
             nes_main.g_nes_mapper_control.prg_rom_setting();

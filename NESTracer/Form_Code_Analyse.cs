@@ -24,7 +24,6 @@ namespace NESTracer
                     g_analyse_code_rom[wbank, i].val = nes_main.g_nes_6502.g_rom[wbank, i];
                     g_analyse_code_rom[wbank, i].bank = wbank;
                     g_analyse_code_rom[wbank, i].s_addr = i;
-                    //g_analyse_code_rom[wbank, i].stack = new List<STACK_LIST>();
                 }
             }
             {
@@ -37,7 +36,6 @@ namespace NESTracer
                     g_analyse_code_ram[i].front = 0;
                     g_analyse_code_ram[i].bank = w_bank;
                     g_analyse_code_ram[i].s_addr = i;
-                    //g_analyse_code_ram[wbank, i].stack = new List<STACK_LIST>();
                 }
             }
             {

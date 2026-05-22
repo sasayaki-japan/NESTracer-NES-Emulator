@@ -60,6 +60,7 @@ namespace NESTracer
                             {
                                 c_freq += (c_freq >> c_sweep_shift);
                             }
+                            c_freq_real = (int)(CPU_CLOCK / ((c_freq + 1) << 4));
                         }
                     }
                 }

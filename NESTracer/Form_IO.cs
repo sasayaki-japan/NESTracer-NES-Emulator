@@ -10,8 +10,8 @@ namespace NESTracer
             public string joystick { get; set; }
             public string keyboard { get; set; }
         }
-        public static List<ParamView> g_paramview;
-        public static string[] JOYSTICKS_NAME = {
+        public List<ParamView> g_paramview;
+        public string[] JOYSTICKS_NAME = {
                  "Button 0"  ,"Button 1"  ,"Button 2"  ,"Button 3"
                 ,"Button 4"  ,"Button 5"  ,"Button 6"  ,"Button 7"
                 ,"Button 8"  ,"Button 9"  ,"Button 10" ,"Button 11"
@@ -26,7 +26,7 @@ namespace NESTracer
                 ,"XYZ 0"     ,"XYZ 1"     ,"XYZ 2"     ,"XYZ 3"
                 ,"XYZ 4"     ,"XYZ 5"
         };
-        public static string[] KEYS_NAME = {
+        public string[] KEYS_NAME = {
             "","Escape","D1","D2", "D3","D4","D5","D6",
             "D7","D8","D9","D0", "Minus","Equals","Back","Tab",
             "Q","W","E","R", "T","Y","U","I",
@@ -62,12 +62,14 @@ namespace NESTracer
         };
         public int g_screen_xpos;
         public int g_screen_ypos;
+        private volatile bool g_waitingKeyboardRelease;
         //----------------------------------------------------------------
         //form
         //----------------------------------------------------------------
         public Form_IO()
         {
             InitializeComponent();
+
             this.MaximumSize = this.Size;
             this.MinimumSize = this.Size;
             dataGridView_io.Font = new Font("Yu Gothic UI", 8);
@@ -101,55 +103,113 @@ namespace NESTracer
         //----------------------------------------------------------------
         private void dataGridView_io_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            DataGridView dgv = (DataGridView)sender;
-            if (dgv.Columns[e.ColumnIndex].Name == "joystick")
-            {
-                var form1 = new Form_IO_Setting();
-                form1.g_mode = 0;
-                form1.ShowDialog();
-                int w_result = form1.g_result;
-                form1.Dispose();
+            UpdateInputGrid(sender, e, nes_main.g_nes_io.g_joy_allocation, nes_main.g_nes_io.g_key_allocation);
+        }
 
-                if (w_result != -1)
+        private void UpdateInputGrid(object sender, DataGridViewCellEventArgs e, int[] in_joyAllocation, int[] in_keyAllocation)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+            if (sender is not DataGridView dgv) return;
+            if (in_joyAllocation == null || in_keyAllocation == null) return;
+            if (e.ColumnIndex >= dgv.Columns.Count || e.RowIndex >= dgv.Rows.Count) return;
+            if (e.RowIndex >= in_joyAllocation.Length || e.RowIndex >= in_keyAllocation.Length) return;
+
+            string w_columnName = dgv.Columns[e.ColumnIndex].Name;
+            if (g_waitingKeyboardRelease == true && w_columnName == "keyboard") return;
+
+            if (w_columnName == "joystick")
+            {
+                using (var form1 = new Form_IO_Setting())
                 {
+                    form1.g_mode = 0;
+                    form1.ShowDialog();
+                    int w_result = form1.g_result;
+
+                    if (w_result == -1) return;
                     if (w_result == -2)
                     {
-                        dataGridView_io[e.ColumnIndex, e.RowIndex].Value = "";
-                        w_result = 0;
+                        dgv[e.ColumnIndex, e.RowIndex].Value = "";
+                        in_joyAllocation[e.RowIndex] = -1;
+                        nes_main.write_setting();
+                        return;
                     }
-                    if (w_result != -1)
-                    {
-                        dataGridView_io[e.ColumnIndex, e.RowIndex].Value = JOYSTICKS_NAME[w_result];
-                    }
-                    nes_main.g_nes_io.g_joy_allocation[e.RowIndex] = w_result;
+
+                    if (IsValidJoystickResult(w_result) == false) return;
+
+                    dgv[e.ColumnIndex, e.RowIndex].Value = JOYSTICKS_NAME[w_result];
+                    in_joyAllocation[e.RowIndex] = w_result;
+                    nes_main.write_setting();
                 }
-                nes_main.write_setting();
             }
-            if (dgv.Columns[e.ColumnIndex].Name == "keyboard")
+            else if (w_columnName == "keyboard")
             {
-                var form1 = new Form_IO_Setting();
-                form1.g_mode = 1;
-                form1.ShowDialog();
-                int w_result = form1.g_result;
-                form1.Dispose();
-
-                if (w_result != -1)
+                using (var form1 = new Form_IO_Setting())
                 {
+                    form1.g_mode = 1;
+                    form1.ShowDialog();
+                    int w_result = form1.g_result;
+                    SuppressKeyboardCellActivationUntilRelease(dgv);
+
+                    if (w_result == -1) return;
                     if (w_result == -2)
                     {
-                        dataGridView_io[e.ColumnIndex, e.RowIndex].Value = "";
-                        w_result = 0;
+                        dgv[e.ColumnIndex, e.RowIndex].Value = "";
+                        in_keyAllocation[e.RowIndex] = 0;
+                        nes_main.write_setting();
+                        return;
                     }
-                    if (w_result != -1)
-                    {
-                        dataGridView_io[e.ColumnIndex, e.RowIndex].Value = KEYS_NAME[w_result];
-                    }
-                    nes_main.g_nes_io.g_key_allocation[e.RowIndex] = w_result;
+
+                    if (IsValidKeyResult(w_result) == false) return;
+
+                    dgv[e.ColumnIndex, e.RowIndex].Value = KEYS_NAME[w_result];
+                    in_keyAllocation[e.RowIndex] = w_result;
+                    nes_main.write_setting();
                 }
-                nes_main.write_setting();
             }
         }
 
+        private async void SuppressKeyboardCellActivationUntilRelease(DataGridView in_dataGridView)
+        {
+            g_waitingKeyboardRelease = true;
+            in_dataGridView.Enabled = false;
+
+            try
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    if (nes_main.g_nes_io.read_device_keyboard_for_setting() == -1) break;
+                    await Task.Delay(10);
+                }
+            }
+            finally
+            {
+                if (IsDisposed == false && in_dataGridView.IsDisposed == false)
+                {
+                    in_dataGridView.Enabled = true;
+                }
+                g_waitingKeyboardRelease = false;
+            }
+        }
+
+        private bool IsValidJoystickResult(int in_result)
+        {
+            return 0 <= in_result && in_result < JOYSTICKS_NAME.Length;
+        }
+
+        private bool IsValidKeyResult(int in_result)
+        {
+            return 0 <= in_result && in_result < KEYS_NAME.Length;
+        }
+
+        private string GetJoystickName(int in_result)
+        {
+            return IsValidJoystickResult(in_result) == true ? JOYSTICKS_NAME[in_result] : "";
+        }
+
+        private string GetKeyName(int in_result)
+        {
+            return IsValidKeyResult(in_result) == true ? KEYS_NAME[in_result] : "";
+        }
         private void Form_IO_FormClosing(object sender, FormClosingEventArgs e)
         {
             nes_main.g_io_enable = false;
@@ -168,7 +228,6 @@ namespace NESTracer
         {
             this.Location = new System.Drawing.Point(g_screen_xpos, g_screen_ypos);
         }
-
         private void button_rescan_Click(object sender, EventArgs e)
         {
             rescan();
@@ -176,45 +235,61 @@ namespace NESTracer
         public void rescan()
         {
             nes_main.g_nes_io.rescan();
+            update_joystick_combo(true);
+        }
+
+        public void update_joystick_combo_from_device_scan()
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(update_joystick_combo_from_device_scan));
+                return;
+            }
+            update_joystick_combo(true);
+        }
+
+        private void update_joystick_combo(bool in_write_setting)
+        {
             comboBox1.Items.Clear();
-            int w_index = -1;
+            if (nes_main.g_nes_io.g_joy_name_list.Count == 0)
+            {
+                nes_main.g_nes_io.g_joy_device_cur = -1;
+                comboBox1.SelectedIndex = -1;
+                if (in_write_setting) nes_main.write_setting();
+                return;
+            }
+
+            int w_index = 0;
             for (int i = 0; i < nes_main.g_nes_io.g_joy_name_list.Count; i++)
             {
-                w_index = 0;
                 comboBox1.Items.Add(nes_main.g_nes_io.g_joy_name_list[i]);
                 if (nes_main.g_nes_io.g_joy_name == nes_main.g_nes_io.g_joy_name_list[i])
                 {
                     w_index = i;
                 }
             }
-            if (w_index == 0)
+
+            if (nes_main.g_nes_io.g_joy_name_list.Contains(nes_main.g_nes_io.g_joy_name) == false)
             {
                 nes_main.g_nes_io.g_joy_name = nes_main.g_nes_io.g_joy_name_list[0];
                 w_index = 0;
             }
             nes_main.g_nes_io.g_joy_device_cur = w_index;
             comboBox1.SelectedIndex = w_index;
-            nes_main.write_setting();
+            if (in_write_setting) nes_main.write_setting();
         }
         //----------------------------------------------------------------
         //initialize
         //----------------------------------------------------------------
         public void initialize()
         {
-            if (nes_main.g_nes_io.g_joy_name_list.Count > 0)
-            {
-                for (int i = 0; i < nes_main.g_nes_io.g_joy_name_list.Count; i++)
-                {
-                    comboBox1.Items.Add(nes_main.g_nes_io.g_joy_name_list[i]);
-                }
-                comboBox1.SelectedIndex = 0;
-            }
-            nes_main.g_nes_io.g_joy_device_cur = 0;
+            update_joystick_combo(false);
 
             for (int i = 0; i < nes_io.KEY_ALLCATION_NUM; i++)
             {
-                dataGridView_io[1, i].Value = JOYSTICKS_NAME[nes_main.g_nes_io.g_joy_allocation[i]];
-                dataGridView_io[2, i].Value = KEYS_NAME[nes_main.g_nes_io.g_key_allocation[i]];
+                dataGridView_io[1, i].Value = GetJoystickName(nes_main.g_nes_io.g_joy_allocation[i]);
+                dataGridView_io[2, i].Value = GetKeyName(nes_main.g_nes_io.g_key_allocation[i]);
             }
         }
     }

@@ -50,38 +50,43 @@ namespace NESTracer
         public byte read1(int in_address)
         {
             byte w_out = 0;
+            in_address &= 0x7;
             switch (in_address)
             {
-                case 0x2002:
+                case 2:
+                    w_out = (byte)(g_openbus & 0x1f);
                     if (g_io_2002_7_VBLANK == true) w_out += 0x80;
                     if (g_io_2002_6_SPRITE == true) w_out += 0x40;
                     if (g_io_2002_5_SPOVER == true) w_out += 0x20;
                     g_io_2002_7_VBLANK = false;
                     g_reg_reg_w = 0;
+                    g_openbus = w_out;
                     break;
-                case 0x2004:
+                case 4:
                     w_out = g_memory_oam[g_io_2003_oam_offset];
-                    g_io_2003_oam_offset += 1;
+                    //g_io_2003_oam_offset += 1;
                     break;
-                case 0x2007:
+                case 7:
                     w_out = g_openbus;
                     int w_addr = g_ppu_reg_v & 0x3FFF;
-                    if ((w_addr <= 0x1fff)||((0x3000 <= w_addr) && (w_addr <= 0x3eff)))
+                    if (w_addr <= 0x1fff)
                     {
-                        w_addr &= 0x1fff;
                         int w_bank = nes_main.g_nes_mapper_control.g_chr_bank_map[w_addr / nes_mapper_control.CHR_ROM_BANK_SIZE];
                         int w_offset = w_addr % nes_mapper_control.CHR_ROM_BANK_SIZE;
                         g_openbus = g_rom[w_bank, w_offset];
                     }
                     else
-                    if (w_addr <= 0x2fff)
+                    if (w_addr <= 0x3eff)
                     {
+                        if (w_addr >= 0x3000) w_addr -= 0x1000;
                         g_openbus = g_ram[get_nametable_address(w_addr)];
                     }
                     else
                     {
                         w_addr = 0x3f00 + (w_addr & 0x001f);
-                        g_openbus = g_ram[w_addr];
+                        if ((w_addr & 0x03) == 0) w_addr &= 0xff0f;
+                        w_out = g_ram[w_addr];
+                        g_openbus = g_ram[get_nametable_address(0x2000 + (g_ppu_reg_v & 0x0fff))];
                     }
 
                     if (((g_scanline < 240) || (g_scanline == 261)) && ((g_io_2001_3_BGSHOW == true) || (g_io_2001_4_SPSHOW == true)))
@@ -107,16 +112,8 @@ namespace NESTracer
                         }
                     }
                     break;
-
-                case 0x2000:
-                case 0x2001:
-                case 0x2003:
-                case 0x2005:
-                case 0x2006:
-                    w_out = g_openbus;
-                    break;
                 default:
-                    Console.WriteLine("Unsupported Mapper");
+                    w_out = g_openbus;
                     break;
             }
             return w_out;
@@ -127,9 +124,10 @@ namespace NESTracer
         public void write1(int in_address, byte in_val)
         {
             g_openbus = in_val;
+            in_address &= 0x7;
             switch (in_address)
             {
-                case 0x2000:
+                case 0:
                     if (((in_val & 0x80) == 0x80) && (g_io_2000_7_VBLANK == false) && (g_io_2002_7_VBLANK == true))
                     {
                         nes_main.g_nes_6502.interrupt_NMI = true;
@@ -143,7 +141,7 @@ namespace NESTracer
                     g_io_2000_1_SCREEN = in_val & 0x03;
                     g_ppu_reg_t = (g_ppu_reg_t & 0xf3ff) | ((in_val & 0x03) << 10);
                     break;
-                case 0x2001:
+                case 1:
                     if ((in_val & 0x80) == 0x80) g_io_2001_7_BEmpasize = true; else g_io_2001_7_BEmpasize = false;
                     if ((in_val & 0x40) == 0x40) g_io_2001_6_GEmpasize = true; else g_io_2001_6_GEmpasize = false;
                     if ((in_val & 0x20) == 0x20) g_io_2001_5_REmpasize = true; else g_io_2001_5_REmpasize = false;
@@ -163,14 +161,14 @@ namespace NESTracer
                     g_bk_GEmpasize = g_io_2001_6_GEmpasize;
                     g_bk_REmpasize = g_io_2001_5_REmpasize;
                     break;
-                case 0x2003:
+                case 3:
                     g_io_2003_oam_offset = in_val;
                     break;
-                case 0x2004:
+                case 4:
                     g_memory_oam[g_io_2003_oam_offset] = in_val;
                     g_io_2003_oam_offset += 1;
                     break;
-                case 0x2005:
+                case 5:
                     if (g_reg_reg_w == 0)
                     {
                         g_ppu_reg_t = (g_ppu_reg_t & 0xffe0) | (in_val >> 3);
@@ -184,7 +182,7 @@ namespace NESTracer
                         g_reg_reg_w = 0;
                     }
                     break;
-                case 0x2006:
+                case 6:
                     if (g_reg_reg_w == 0)
                     {
                         g_ppu_reg_t = (g_ppu_reg_t & 0x00ff) | ((in_val & 0x3f) << 8);
@@ -197,12 +195,12 @@ namespace NESTracer
                         g_reg_reg_w = 0;
                     }
                     break;
-                case 0x2007:
+                case 7:
                     int w_addr = g_ppu_reg_v & 0x3FFF;
-                    if ((w_addr <= 0x1fff) || ((0x3000 <= w_addr) && (w_addr <= 0x3eff)))
+                    if (w_addr <= 0x1fff)
                     {
-                        w_addr &= 0x1fff;
-                        g_rom[(w_addr / nes_mapper_control.CHR_ROM_BANK_SIZE), (w_addr % nes_mapper_control.CHR_ROM_BANK_SIZE)] = in_val;
+                        int w_mapped_bank = nes_main.g_nes_mapper_control.g_chr_bank_map[w_addr / nes_mapper_control.CHR_ROM_BANK_SIZE];
+                        g_rom[w_mapped_bank, (w_addr % nes_mapper_control.CHR_ROM_BANK_SIZE)] = in_val;
                         g_ram[w_addr] = in_val;
                         int w_bank = w_addr >> 10;
                         int w_chr = (w_addr & 0x03f0) >> 4;
@@ -223,32 +221,16 @@ namespace NESTracer
                         }
                     }
                     else
-                    if (w_addr <= 0x2fff)
+                    if (w_addr <= 0x3eff)
                     {
+                        if (w_addr >= 0x3000) w_addr -= 0x1000;
                         w_addr = get_nametable_address(w_addr);
                         g_ram[w_addr] = in_val;
-                        if(((0x23c0 <= w_addr)&&(w_addr <= 0x23ff))||
-                            ((0x27c0 <= w_addr) && (w_addr <= 0x27ff)))
-                        {
-                            int w_name = 0;
-                            int w_x = 0;
-                            int w_y = 0;
-                            if (w_addr <= 0x23ff)
-                            {
-                                w_x = (w_addr - 0x23c0) & 0x07;
-                                w_y = ((w_addr - 0x23c0) >> 3) & 0x07;
-                            }
-                            else
-                            {
-                                w_name = 1;
-                                w_x = (w_addr - 0x27c0) & 0x07;
-                                w_y = ((w_addr - 0x27c0) >> 3) & 0x07;
-                            }
-                            set_attrtable(w_addr, in_val);
-                        }
+                        set_attrtable(w_addr, in_val);
                     }
                     else
                     {
+                        w_addr = 0x3f00 + (w_addr & 0x001f);
                         if((w_addr & 0x03) == 0)
                         {
                             g_ram[w_addr & 0xff0f] = (byte)(in_val & 0x3f);
@@ -282,17 +264,19 @@ namespace NESTracer
                         }
                     }
                     break;
-                case 0x4014:
-                    for (int i = 0; i < 256; i++)
-                    {
-                        g_memory_oam[i] = nes_main.g_nes_6502.g_ram[in_val * 256 + i];
-                    }
-                    nes_main.g_nes_6502.g_clock_opt += 513;
-                    break;
                 default:
                     Console.WriteLine("Unsupported Mapper");
                     break;
             }
+        }
+        public void dma(byte in_val)
+        {
+            ushort w_base = (ushort)(in_val << 8);
+            for (int i = 0; i < 256; i++)
+            {
+                g_memory_oam[(g_io_2003_oam_offset + i) & 0xff] = nes_main.g_nes_bus.read1((ushort)(w_base + i));
+            }
+            nes_main.g_nes_6502.g_clock_opt += 513;
         }
         //----------------------------------------------------------------
         //sub

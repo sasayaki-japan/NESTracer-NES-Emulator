@@ -13,7 +13,15 @@ namespace NESTracer
         }
         public void prg_rom_setting()
         {
-            nes_main.g_nes_mapper_control.set_prg_rom_bank_32k(0, nes_main.g_nes_mapper_control.g_prg_bank_num - 4);
+            if (nes_main.g_nes_mapper_control.g_prg_bank_num == 2)
+            {
+                nes_main.g_nes_mapper_control.set_prg_rom_bank_16k(0, 0);
+                nes_main.g_nes_mapper_control.set_prg_rom_bank_16k(2, 0);
+            }
+            else
+            {
+                nes_main.g_nes_mapper_control.set_prg_rom_bank_32k(0, 0);
+            }
         }
         public void chr_rom_setting()
         {

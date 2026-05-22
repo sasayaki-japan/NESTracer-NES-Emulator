@@ -111,7 +111,7 @@ namespace NESTracer
                             {
                                 case 0:
                                 case 1:
-                                    nes_main.g_nes_mapper_control.set_prg_rom_bank_32k(0, (g_control_reg[3] & 0xfe));
+                                    nes_main.g_nes_mapper_control.set_prg_rom_bank_32k(0, (g_control_reg[3] & 0x0e) << 1);
                                     break;
                                 case 2:
                                     nes_main.g_nes_mapper_control.set_prg_rom_bank_16k(0, 0);

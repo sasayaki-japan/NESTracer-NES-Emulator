@@ -40,6 +40,7 @@ namespace NESTracer
             nes_main.read_setting();
             nes_main.g_form_io.initialize();
             nes_main.g_form_io.rescan();
+            nes_main.g_nes_io.start_periodic_joystick_rescan();
             nes_main.g_form_music.initialize();
             g_filelist_view = true;
             this.Location = new System.Drawing.Point(g_screen_xpos, g_screen_ypos);

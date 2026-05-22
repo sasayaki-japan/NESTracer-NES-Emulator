@@ -47,11 +47,11 @@ namespace NESTracer
         }
         public void run(float in_clock)
         {
-            interrupt_chk();
+            int w_interrupt_clock = interrupt_chk();
             int w_sprite_hit_cnt = nes_main.g_nes_ppu.get_sprite_zero_hit();
 
             g_clock_total += in_clock;
-            g_clock_now = 0;
+            g_clock_now = w_interrupt_clock;
             while (g_clock_now < g_clock_total)
             {
                 nes_main.g_form_code_trace.CPU_Trace(g_reg_PC);
@@ -71,25 +71,14 @@ namespace NESTracer
             }
             g_clock_total -= g_clock_now;
         }
-        private void interrupt_chk()
+        private int interrupt_chk()
         {
+            int w_clock = 0;
             if (interrupt_RESET == true)
             {
                 interrupt_RESET = false;
                 g_flag_I = true;
                 g_reg_PC = nes_main.g_nes_bus.read2(0xfffc);
-            }
-            else
-            if ((interrupt_IRQ == true) && (g_flag_I == false))
-            {
-                interrupt_IRQ = false;
-                interrupt_IRQ_act = true;
-                push2(g_reg_PC, "IRQ");
-                g_flag_B = false;
-                push_P();
-                g_flag_I = true;
-                g_reg_PC = nes_main.g_nes_bus.read2(0xfffe);
-                g_clock_opt += 7;
             }
             else
             if (interrupt_NMI == true)
@@ -101,8 +90,21 @@ namespace NESTracer
                 push_P();
                 g_flag_I = true;
                 g_reg_PC = nes_main.g_nes_bus.read2(0xfffa);
-                g_clock_opt += 7;
+                w_clock = 7;
             }
+            else
+            if ((interrupt_IRQ == true) && (g_flag_I == false))
+            {
+                interrupt_IRQ = false;
+                interrupt_IRQ_act = true;
+                push2(g_reg_PC, "IRQ");
+                g_flag_B = false;
+                push_P();
+                g_flag_I = true;
+                g_reg_PC = nes_main.g_nes_bus.read2(0xfffe);
+                w_clock = 7;
+            }
+            return w_clock;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using NAudio.Wave;
+using System.Diagnostics;
 
 namespace NESTracer
 {
@@ -17,8 +18,6 @@ namespace NESTracer
 
         private int g_clock_cnt;
         private int g_cycle_bk = -1;
-        private byte[] g_buffer;
-        private int g_buffer_cur = 0;
         private float g_clock_cnt_2 = 0;
         private float g_clock_cnt_120 = 0;
         private float g_clock_cnt_240 = 0;
@@ -26,6 +25,8 @@ namespace NESTracer
         private int g_clock_sycle = 0;
         public void run(float in_clock)
         {
+            byte[] w_buffer = g_buffer;
+            BufferedWaveProvider w_bufferedwaveprovider = g_bufferedwaveprovider;
             for (int i = 0; i < (int)in_clock; i++)
             {
                 g_clock_cnt_2 = (g_clock_cnt_2 + 1) % 2;
@@ -104,7 +105,7 @@ namespace NESTracer
                         if ((w_mix1 == 0) && (w_mix2 == 0) && (w_mix3 == 0) && (w_mix4 == 0) && (w_mix5 == 0))
                         {
                             w_mix_left = 0;
-                            w_mix_left = 0;
+                            w_mix_right = 0;
                         }
                         w_mix_left = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_left));
                         w_mix_right = (short)Math.Max((short)-32768, (short)Math.Min((short)32767, w_mix_right));
@@ -117,10 +118,18 @@ namespace NESTracer
                     g_buffer_cur += 4;
                     if (BUFSIZE <= g_buffer_cur)
                     {
-                        g_bufferedwaveprovider.AddSamples(g_buffer, 0, BUFSIZE);
+                        WaitForBufferSpace(w_bufferedwaveprovider);
+                        w_bufferedwaveprovider.AddSamples(w_buffer, 0, BUFSIZE);
                         g_buffer_cur = 0;
                     }
                 }
+            }
+        }
+        private void WaitForBufferSpace(BufferedWaveProvider in_bufferedwaveprovider)
+        {
+            while (in_bufferedwaveprovider.BufferedBytes + BUFSIZE > in_bufferedwaveprovider.BufferLength)
+            {
+                System.Threading.Thread.Sleep(1);
             }
         }
     }

@@ -26,6 +26,7 @@ namespace NESTracer
                 read_init();
                 return;
             }
+            read_init_apu();
             for (int i = 0; i < g_setting_name.Count; i++)
             {
                 string w_name = g_setting_name[i];
@@ -120,6 +121,7 @@ namespace NESTracer
                     case "file8": Form_Main.g_file_name[8] = g_setting_val[i]; break;
                 }
             }
+            g_nes_apu.setting(false);
         }
         public static void read_init()
         {
@@ -131,6 +133,13 @@ namespace NESTracer
             g_nes_io.g_key_allocation[5] = 31;
             g_nes_io.g_key_allocation[6] = 30;
             g_nes_io.g_key_allocation[7] = 32;
+            read_init_apu();
+            Form_Main.g_screen_size_x = 512;
+            Form_Main.g_screen_size_y = 480;
+            g_nes_apu.setting(false);
+        }
+        private static void read_init_apu()
+        {
             for (int j = 0; j < 6; j++)
             {
                 g_nes_apu.g_master_chk[j] = true;
@@ -139,8 +148,6 @@ namespace NESTracer
             {
                 g_nes_apu.g_master_vol[j] = 100;
             }
-            Form_Main.g_screen_size_x = 512;
-            Form_Main.g_screen_size_y = 480;
         }
         public static void write_setting()
         {

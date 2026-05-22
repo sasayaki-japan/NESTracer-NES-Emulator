@@ -62,6 +62,10 @@ namespace NESTracer
 
             public void clock_cpu()
             {
+                if (c_len_count <= 0 || c_linear_count <= 0)
+                {
+                    return;
+                }
                 if (0 < c_counter)
                 {
                     c_counter -= 1;

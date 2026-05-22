@@ -1,4 +1,4 @@
-ï»¿using static NESTracer.Form_Code_Trace;
+using static NESTracer.Form_Code_Trace;
 
 namespace NESTracer
 {
@@ -46,7 +46,7 @@ namespace NESTracer
         }
         private void Form_Bank_Code_FormClosing(object sender, FormClosingEventArgs e)
         {
-            nes_main.g_code_enable = false;
+            nes_main.g_code_bank_enable = false;
             nes_main.g_form_setting.update();
             nes_main.write_setting();
             e.Cancel = true;
@@ -195,7 +195,7 @@ namespace NESTracer
                     }
                 }
             }
-            if ((in_line - w_line > 100) || (in_line - w_line < -100)) w_line = w_line;
+            if ((in_line - w_line > 100) || (in_line - w_line < -100)) w_line = in_line;
 
 
             g_top_line = w_line;
@@ -207,8 +207,8 @@ namespace NESTracer
         {
             e.Graphics.FillRectangle(Brushes.White, 0, 0, in_width, in_height);
             e.Graphics.FillRectangle(Brushes.DarkBlue, 0, 0, in_width, 20);
-            Font wfont = new Font("ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯", 10);
-            Font wfont_data = new Font("ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯", 9);
+            Font wfont = new Font("‚l‚r ƒSƒVƒbƒN", 10);
+            Font wfont_data = new Font("‚l‚r ƒSƒVƒbƒN", 9);
             Brush wbrush = Brushes.White;
             Brush wbrush_red = Brushes.Red;
             e.Graphics.DrawString("addr", wfont, wbrush, new PointF(20 - in_hScrollBar, 1));

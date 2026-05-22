@@ -17,6 +17,13 @@
         public void initialize()
         {
             g_bankreg = new int[BANKg_reg_NUM];
+            g_prg_mode = false;
+            g_chr_mode = false;
+            g_select_bank = 0;
+            g_irq_latch = 0;
+            g_irq_counter = 0;
+            g_irq_enable = false;
+            g_irq_reload = false;
         }
         public void prg_rom_setting()
         {
@@ -27,6 +34,7 @@
         }
         public void chr_rom_setting()
         {
+            nes_main.g_nes_mapper_control.set_chr_rom_bank_8k(0, 0);
         }
         public void cpu_write1(int in_address, byte in_val)
         {
